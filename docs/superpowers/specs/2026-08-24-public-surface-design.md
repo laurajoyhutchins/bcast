@@ -57,7 +57,7 @@ The repository must not contain:
 
 BCAST does not define source authority. Publishers, standards organizations, governments, and other lawful providers remain authoritative for source publications.
 
-BCAST owns the provider-neutral compiled representation it produces from those inputs, subject to source rights and contractual constraints.
+BCAST's product is the provider-neutral compiled representation produced from those inputs, subject to source rights and contractual constraints.
 
 The conceptual flow is:
 
@@ -133,7 +133,6 @@ The initial public repository should stay deliberately small:
 
 ```text
 README.md
-LICENSE
 SECURITY.md
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
@@ -163,7 +162,7 @@ docs/
   superpowers/specs/
 ```
 
-Directories should exist only when they contain a real maintained artifact. Empty scaffolding should not be created merely to advertise future plans.
+A `LICENSE` file is added only after the public artifact licensing model is deliberately selected. Directories should exist only when they contain a real maintained artifact. Empty scaffolding should not be created merely to advertise future plans.
 
 ## Initial release scope
 
@@ -250,7 +249,7 @@ Before changing repository visibility to public, verify all of the following:
 - repository description and README accurately describe BCAST as a public technical interface, not an open-source compiler;
 - source-and-rights policy is present;
 - contribution policy rejects proprietary-source ingestion through public pull requests;
-- license choice has been made deliberately;
+- license choice has been made deliberately and the corresponding `LICENSE` file is present;
 - examples are synthetic or clearly redistributable;
 - public schemas expose stable consumer commitments only;
 - Git history has been reviewed as part of the publication decision.
