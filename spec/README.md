@@ -2,7 +2,7 @@
 
 This directory contains consumer-facing BCAST contracts and the rules that govern them.
 
-The public specification surface may eventually include:
+The public specification surface may contain:
 
 - canonical package schemas;
 - read-oriented service API definitions;
@@ -14,13 +14,18 @@ It does **not** specify private ingestion, provider adaptation, source normaliza
 
 ## Current status
 
-BCAST is pre-1.0. No package schema or OpenAPI contract has been released yet.
+BCAST is pre-1.0.
 
-The repository will create `schemas/` and `openapi/` only when there is a real maintained contract to place in them. Empty directories and placeholder schemas are intentionally avoided.
+The first maintained package contract is:
 
-Current public rules:
+- [`package-0.1.md`](package-0.1.md) — semantic contract and deterministic identity rules;
+- [`schemas/package-0.1.schema.json`](schemas/package-0.1.schema.json) — JSON Schema for `bcast.package/0.1`.
+
+There is not yet a public OpenAPI service contract. An `openapi/` directory should be created only when there is a real maintained service interface to place in it.
+
+Other public rules:
 
 - [`compatibility.md`](compatibility.md) — how public contracts evolve;
 - [`identifiers.md`](identifiers.md) — provider-neutral identity principles.
 
-Concrete wire formats should be introduced only when downstream consumers have a real interface to depend on.
+Concrete formats belong here only when downstream consumers have a real interface to depend on. Private compiler representations are not promoted into public contracts merely because they already exist.
