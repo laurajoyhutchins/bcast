@@ -1,0 +1,41 @@
+{
+  "schema_version": "bcast.package/0.1",
+  "package_id": "bcastpkg:sha256:51b6229012ad1f71303d9018e0e7e9fdfc68fb66724e258dbd767979ccf2cea1",
+  "package_version": "2026.08.synthetic.1",
+  "publication": {
+    "publication_id": "bcastpub:sha256:cdc0d4941affb103cc10a87b6a206094ff02f0790795b79a909a5ea0ac3be0e8",
+    "family": "example-safety-code",
+    "edition": "2026",
+    "title": "Example Safety Code",
+    "issuing_body": "BCAST synthetic fixture"
+  },
+  "objects": [
+    {
+      "object_id": "bcastobj:sha256:9b9dab8a4909cb09bd2a2b454a09949a6b30f7f69a8883d0137859e06baa73f8",
+      "kind": "document",
+      "locator": "root",
+      "label": "Example Safety Code",
+      "status": "resolved",
+      "assurance": "verified",
+      "provenance": {
+        "citation": "Project-authored synthetic fixture"
+      }
+    },
+    {
+      "object_id": "bcastobj:sha256:55843871042292a117a3363dadcef7f032c8bb9c77bb3eac9098ec7354dd3111",
+      "kind": "section",
+      "locator": "1.1",
+      "parent_id": "bcastobj:sha256:9b9dab8a4909cb09bd2a2b454a09949a6b30f7f69a8883d0137859e06baa73f8",
+      "label": "Clearances",
+      "status": "resolved",
+      "assurance": "verified",
+      "content": {
+        "media_type": "text/plain",
+        "text": "Keep a clear working space around the synthetic equipment."
+      },
+      "provenance": {
+        "citation": "Project-authored synthetic fixture, Section 1.1"
+      }
+    }
+  ]
+}
