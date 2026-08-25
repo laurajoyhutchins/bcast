@@ -16,14 +16,16 @@ Publishers, standards organizations, governments, and other lawful providers rem
 
 ## What this repository contains
 
-The public surface is intended to contain:
+The public surface contains or is intended to contain:
 
-- package and API specifications;
+- versioned package and API specifications;
 - stable identity and compatibility rules;
 - thin client SDKs;
 - deterministic conformance tooling;
 - synthetic or clearly redistributable examples;
 - integration, security, contribution, and rights documentation.
+
+The first maintained package contract is [`bcast.package/0.1`](spec/package-0.1.md). It is a pre-1.0 private-preview contract and is exercised by a synthetic fixture plus deterministic local conformance validation.
 
 ## What this repository does not contain
 
@@ -44,17 +46,30 @@ The durable boundary is:
 
 ## Status
 
-BCAST is pre-1.0. No public package schema or service API has been released yet, and compatibility rules may evolve before 1.0.
+BCAST is pre-1.0. The first package contract now exists, but no public service API has been released and compatibility rules may evolve before 1.0.
 
-This repository remains private while its public surface, licensing model, and publication checks are established. Visibility should not change until the publication checklist is complete.
+This repository remains private while its licensing model and publication checks are completed. Visibility should not change until the publication checklist passes.
+
+## Validate the synthetic package
+
+```bash
+python -m pip install -r conformance/requirements.txt
+python conformance/validate.py   spec/schemas/package-0.1.schema.json   examples/synthetic/package-0.1.json
+```
+
+Validation is deliberately source-independent. It checks the public contract and deterministic identity/structure invariants without invoking any private compiler or source acquisition path.
 
 ## Repository map
 
+- [`spec/package-0.1.md`](spec/package-0.1.md) — first public package contract
+- [`spec/schemas/package-0.1.schema.json`](spec/schemas/package-0.1.schema.json) — package JSON Schema
+- [`examples/synthetic/package-0.1.json`](examples/synthetic/package-0.1.json) — project-authored synthetic fixture
+- [`conformance/validate.py`](conformance/validate.py) — deterministic local validator
 - [`docs/product-boundary.md`](docs/product-boundary.md) — public/private product boundary
 - [`docs/architecture.md`](docs/architecture.md) — public-facing architecture
 - [`docs/source-and-rights.md`](docs/source-and-rights.md) — source and redistribution rules
+- [`docs/migration-from-alpha.md`](docs/migration-from-alpha.md) — clean migration boundary from alpha
 - [`docs/roadmap.md`](docs/roadmap.md) — public-surface milestones
-- [`spec/`](spec/) — consumer-facing contract rules
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — acceptable contribution scope
 - [`SECURITY.md`](SECURITY.md) — security and sensitive-data reporting
 

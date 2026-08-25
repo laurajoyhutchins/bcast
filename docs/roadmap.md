@@ -4,7 +4,7 @@ This roadmap covers the public technical surface only. It does not describe priv
 
 ## M0 — Public surface foundation
 
-Establish the repository boundary before publishing product contracts.
+Status: implemented in the private pre-publication repository.
 
 Deliverables:
 
@@ -20,16 +20,17 @@ Exit condition: the repository can explain what BCAST exposes without implying t
 
 ## M1 — First package contract
 
-Publish the smallest useful provider-neutral package contract.
+Status: implementation baseline complete; public release still gated.
 
-Deliverables:
+Implemented baseline:
 
-- versioned package schema;
-- deliberately synthetic or clearly redistributable examples;
+- versioned `bcast.package/0.1` JSON Schema;
+- project-authored synthetic package fixture;
 - deterministic local conformance validation;
-- compatibility notes for the first package version.
+- provider-neutral identity wire rules;
+- explicit alpha-to-public migration boundary.
 
-The schema should expose only consumer-facing commitments that are ready to be maintained. It should not mirror a publisher API or expose private compiler state.
+Remaining release work is publication governance, including the deliberate license choice and final publication checklist. Those gates do not justify importing private compiler machinery into this repository.
 
 ## M2 — Consumer API
 
