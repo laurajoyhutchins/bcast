@@ -18,9 +18,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install conformance dependencies
-        run: python -m pip install --disable-pip-version-check -r conformance/requirements.txt
+      - name: Install public client and conformance dependencies
+        run: python -m pip install --disable-pip-version-check -e . -r conformance/requirements.txt
       - name: Run conformance regression tests
         run: python -m unittest conformance.test_conformance
+      - name: Run public client tests
+        run: python -m unittest discover -s tests
       - name: Validate synthetic package
         run: python conformance/validate.py spec/schemas/package-0.1.0.schema.json examples/synthetic/valid/package-0.1.0.json
