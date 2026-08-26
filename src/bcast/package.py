@@ -48,6 +48,9 @@ class BcastPackage:
     def package_version(self) -> str:
         return self._data["package_version"]
 
+    def as_dict(self) -> dict[str, Any]:
+        return deepcopy(self._data)
+
     def metadata(self) -> dict[str, Any]:
         return deepcopy({
             "schema_version": self._data["schema_version"],

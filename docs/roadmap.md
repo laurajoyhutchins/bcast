@@ -49,9 +49,9 @@ Implemented baseline:
 
 Exit condition: a future BCAST contract can be released and cited without a Git tag or GitHub release silently inventing compatibility semantics.
 
-## M3 — Consumer API and thin client
+## M3 — Consumer API and source-independent client stack
 
-Status: draft contract baseline and first local client complete; no production service deployment yet.
+Status: draft contract and source-independent implementation baseline complete; no production service deployment yet.
 
 Implemented baseline:
 
@@ -64,9 +64,13 @@ Implemented baseline:
 - exact declared compatibility with `bcast.package/0.1.0`;
 - source-independent mechanical contract tests in the public conformance suite;
 - installable Python client and CLI for local `bcast.package/0.1.0` validation, object retrieval, and direct-child traversal;
+- public deterministic publication, object, and package identity helpers derived from the normative package contract;
+- standard-library HTTP client for all four `bcast.api/0.1.0` GET operations and stable problem semantics;
+- local read-only reference server over already-built conforming package files;
+- end-to-end client/server regression tests for unresolved record retrieval, not-found problems, and deterministic child ordering;
 - packaged schema parity checks so the client cannot silently drift from the maintained companion schema in the same revision.
 
-The API contract and thin client deliberately do not standardize or implement provider lookup, semantic relationship traversal, amendment graphs, cross-edition traversal, mutation, private compilation operations, authentication, entitlement, source acquisition, or deployment URLs.
+The API contract and public consumer stack deliberately do not standardize or implement provider lookup, semantic relationship traversal, amendment graphs, cross-edition traversal, mutation, private compilation operations, authentication, entitlement, source acquisition, or production deployment URLs. The local reference server is a conformance and integration aid, not the production BCAST service.
 
 ## Outside the public roadmap
 

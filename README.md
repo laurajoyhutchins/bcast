@@ -79,6 +79,29 @@ bcast children examples/synthetic/valid/package-0.1.0.json \
 
 The client is an implementation of the public contract, not a compatibility layer for alpha Python classes, CLI commands, internal schemas, or generated artifacts.
 
+### Exercise the read-only API locally
+
+The same package includes a standard-library HTTP client for `bcast.api/0.1.0` and a local reference server. The reference server serves **already-built, conforming BCAST package files only**. It does not acquire source material, call providers, normalize text, compile packages, inspect entitlements, or expose private compiler state.
+
+```bash
+bcast serve examples/synthetic/valid/package-0.1.0.json --port 8000
+```
+
+In another shell, use the canonical package and object IDs from the package:
+
+```bash
+bcast api http://127.0.0.1:8000 metadata \
+  bcastpkg:sha256:51b6229012ad1f71303d9018e0e7e9fdfc68fb66724e258dbd767979ccf2cea1
+
+bcast api http://127.0.0.1:8000 get \
+  bcastpkg:sha256:51b6229012ad1f71303d9018e0e7e9fdfc68fb66724e258dbd767979ccf2cea1 \
+  bcastobj:sha256:55843871042292a117a3363dadcef7f032c8bb9c77bb3eac9098ec7354dd3111
+```
+
+Programmatic consumers can use `BcastApiClient`. Public identity helpers `publication_id`, `regulatory_object_id`, and `package_id` implement the exact deterministic identity inputs standardized by `bcast.package/0.1.0`.
+
+The local reference server is a conformance and integration aid. Its presence does **not** mean that a production BCAST service has been deployed, and it deliberately implements only the four GET operations standardized by `bcast.api/0.1.0`.
+
 ## Validate the public contracts
 
 ```bash
@@ -100,7 +123,7 @@ Validation is deliberately source-independent. It checks the public package cont
 - [`spec/api-0.1.0.md`](spec/api-0.1.0.md) — first public read-only API contract
 - [`spec/openapi/bcast-api-0.1.0.openapi.json`](spec/openapi/bcast-api-0.1.0.openapi.json) — companion OpenAPI 3.2 description
 - [`spec/schemas/package-0.1.0.schema.json`](spec/schemas/package-0.1.0.schema.json) — companion package JSON Schema
-- [`src/bcast/`](src/bcast/) — thin Python consumer client and CLI
+- [`src/bcast/`](src/bcast/) — thin Python consumer client, public identity helpers, and local reference API server
 - [`examples/synthetic/README.md`](examples/synthetic/README.md) — conformance fixture taxonomy and redistribution statement
 - [`examples/synthetic/valid/package-0.1.0.json`](examples/synthetic/valid/package-0.1.0.json) — project-authored conforming fixture
 - [`examples/synthetic/invalid/package-0.1.0-missing-parent.json`](examples/synthetic/invalid/package-0.1.0-missing-parent.json) — project-authored nonconforming fixture

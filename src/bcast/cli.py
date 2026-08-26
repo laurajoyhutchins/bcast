@@ -5,7 +5,9 @@ import json
 import sys
 from typing import Sequence
 
+from .api import BcastApiClient, BcastApiError
 from .package import BcastPackage, ObjectNotFoundError
+from .server import serve_paths
 from .validation import PackageValidationError
 
 
@@ -23,6 +25,29 @@ def _parser() -> argparse.ArgumentParser:
     children = subparsers.add_parser("children", help="List direct structural children")
     children.add_argument("package")
     children.add_argument("object_id")
+
+    serve = subparsers.add_parser("serve", help="Serve validated local packages through bcast.api/0.1.0")
+    serve.add_argument("packages", nargs="+")
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8000)
+
+    api = subparsers.add_parser("api", help="Call a bcast.api/0.1.0 endpoint")
+    api.add_argument("base_url")
+    api_subparsers = api.add_subparsers(dest="api_command", required=True)
+
+    metadata = api_subparsers.add_parser("metadata", help="Retrieve package metadata")
+    metadata.add_argument("package_id")
+
+    package = api_subparsers.add_parser("package", help="Retrieve a complete package")
+    package.add_argument("package_id")
+
+    api_get = api_subparsers.add_parser("get", help="Retrieve one canonical object record")
+    api_get.add_argument("package_id")
+    api_get.add_argument("object_id")
+
+    api_children = api_subparsers.add_parser("children", help="List direct structural children")
+    api_children.add_argument("package_id")
+    api_children.add_argument("object_id")
     return parser
 
 
@@ -33,6 +58,21 @@ def _print_json(value) -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
+        if args.command == "serve":
+            serve_paths(args.packages, host=args.host, port=args.port)
+            return 0
+        if args.command == "api":
+            client = BcastApiClient(args.base_url)
+            if args.api_command == "metadata":
+                _print_json(client.get_package_metadata(args.package_id))
+            elif args.api_command == "package":
+                _print_json(client.get_package(args.package_id))
+            elif args.api_command == "get":
+                _print_json(client.get_object(args.package_id, args.object_id))
+            elif args.api_command == "children":
+                _print_json(client.get_children(args.package_id, args.object_id))
+            return 0
+
         package = BcastPackage.load(args.package)
         if args.command == "validate":
             print(f"OK {args.package}")
@@ -41,6 +81,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif args.command == "children":
             _print_json(package.children(args.object_id))
         return 0
-    except (PackageValidationError, ObjectNotFoundError, OSError, json.JSONDecodeError) as exc:
+    except (PackageValidationError, ObjectNotFoundError, BcastApiError, OSError, json.JSONDecodeError) as exc:
         print(f"ERROR {exc}", file=sys.stderr)
         return 1
