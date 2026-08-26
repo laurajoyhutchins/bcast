@@ -1,26 +1,18 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from importlib import resources
 from typing import Any, Mapping
 
 from jsonschema import Draft202012Validator
 
+from .identifiers import package_id, publication_id, regulatory_object_id
+
 
 class PackageValidationError(ValueError):
     def __init__(self, errors: list[str]):
         self.errors = tuple(errors)
         super().__init__("; ".join(errors))
-
-
-def canonical_json(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-
-
-def stable_id(prefix: str, payload: Mapping[str, Any]) -> str:
-    digest = hashlib.sha256(canonical_json(dict(payload)).encode("utf-8")).hexdigest()
-    return f"{prefix}:sha256:{digest}"
 
 
 def load_schema() -> dict[str, Any]:
@@ -40,17 +32,15 @@ def _schema_errors(package: Any) -> list[str]:
 def _semantic_errors(package: Mapping[str, Any]) -> list[str]:
     failures: list[str] = []
     publication = package["publication"]
-    publication_identity = {"family": publication["family"], "edition": publication["edition"]}
-    if "revision" in publication:
-        publication_identity["revision"] = publication["revision"]
-    expected_publication_id = stable_id("bcastpub", publication_identity)
+    expected_publication_id = publication_id(
+        publication["family"],
+        publication["edition"],
+        publication.get("revision"),
+    )
     if publication["publication_id"] != expected_publication_id:
         failures.append("publication_id does not match canonical provider-neutral identity")
 
-    expected_package_id = stable_id(
-        "bcastpkg",
-        {"publication_id": publication["publication_id"], "package_version": package["package_version"]},
-    )
+    expected_package_id = package_id(publication["publication_id"], package["package_version"])
     if package["package_id"] != expected_package_id:
         failures.append("package_id does not match canonical package identity")
 
@@ -58,9 +48,10 @@ def _semantic_errors(package: Mapping[str, Any]) -> list[str]:
     coordinates: set[tuple[str, str]] = set()
     by_id: dict[str, Mapping[str, Any]] = {}
     for index, item in enumerate(package["objects"]):
-        expected_object_id = stable_id(
-            "bcastobj",
-            {"publication_id": publication["publication_id"], "kind": item["kind"], "locator": item["locator"]},
+        expected_object_id = regulatory_object_id(
+            publication["publication_id"],
+            item["kind"],
+            item["locator"],
         )
         if item["object_id"] != expected_object_id:
             failures.append(f"objects[{index}].object_id does not match canonical object identity")
