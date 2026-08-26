@@ -34,9 +34,10 @@ There is not yet a public OpenAPI service contract. An `openapi/` directory shou
 
 BCAST does not currently define or claim an IANA-registered BCAST-specific media type. Media-type registration is a separate interoperability decision and any future declaration must distinguish registered from unregistered types accurately.
 
-Other normative public rules:
+Other public rules:
 
-- [`compatibility.md`](compatibility.md) — how public contracts evolve;
-- [`identifiers.md`](identifiers.md) — provider-neutral identity principles.
+- [`compatibility.md`](compatibility.md) — normative rules for how public contracts evolve;
+- [`identifiers.md`](identifiers.md) — normative provider-neutral identity principles;
+- [`../docs/standards-governance.md`](../docs/standards-governance.md) — process for normative changes, status, releases, errata, and citation.
 
 Concrete formats belong here only when downstream consumers have a real interface to depend on. Private compiler representations are not promoted into public contracts merely because they already exist.

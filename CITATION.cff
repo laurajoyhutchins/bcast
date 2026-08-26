@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "Cite BCAST using this repository metadata and identify the exact contract version or Git revision used."
+title: "BCAST"
+authors:
+  - family-names: "Hutchins"
+    given-names: "Laura Joy"
+license: "Apache-2.0"
+repository-code: "https://github.com/laurajoyhutchins/bcast"

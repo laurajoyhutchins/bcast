@@ -34,7 +34,22 @@ Implemented baseline:
 
 Before a stable 1.0 contract, changes remain governed by the pre-1.0 compatibility policy and must be explicit and versioned rather than silently reinterpreting an existing contract coordinate.
 
-## M2 — Consumer API
+## M2 — Standards governance and citable releases
+
+Define how the public BCAST standard changes and how immutable release snapshots are identified.
+
+Deliverables:
+
+- maintainer-led normative-change governance with an explicit public/private decision boundary;
+- draft, stable, deprecated, and withdrawn standard statuses;
+- editorial correction, errata, and normative-change rules;
+- explicit mapping between semantic contract versions and repository tags/releases;
+- exact-revision release gates with conformance and changelog evidence;
+- machine-readable citation metadata without implied DOI or standards-body registration.
+
+Exit condition: a future BCAST contract can be released and cited without a Git tag or GitHub release silently inventing compatibility semantics.
+
+## M3 — Consumer API
 
 Publish a read-oriented service contract around BCAST packages.
 
