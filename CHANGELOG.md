@@ -16,11 +16,14 @@ All notable changes to BCAST's public technical surface will be documented here.
 - project-authored synthetic valid and invalid conformance fixture taxonomy;
 - deterministic local conformance validation, including cross-record invariants that JSON Schema alone cannot express;
 - explicit migration boundary from `building-code-ast-alpha`;
-- publication-safety audit record for repository history and the maintained public tree.
+- publication-safety audit record for repository history and the maintained public tree;
+- public standards-governance, status, release, errata, and citation policy;
+- machine-readable `CITATION.cff` metadata without an implied DOI or tagged standards release.
 
 ### Changed
 
 - normalized the first unreleased pre-1.0 package coordinate from `0.1` to semantic-version form `0.1.0` before any tagged BCAST release;
-- renamed the package specification, schema, and synthetic fixtures to carry the same `0.1.0` identity consistently.
+- renamed the package specification, schema, and synthetic fixtures to carry the same `0.1.0` identity consistently;
+- inserted standards governance and citable-release maturity between the first package contract and the consumer API roadmap milestone.
 
 BCAST became public on August 26, 2026. No public service API or tagged BCAST release exists yet; the package contract remains a pre-1.0 draft.
