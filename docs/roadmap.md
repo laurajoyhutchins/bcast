@@ -49,9 +49,9 @@ Implemented baseline:
 
 Exit condition: a future BCAST contract can be released and cited without a Git tag or GitHub release silently inventing compatibility semantics.
 
-## M3 — Consumer API
+## M3 — Consumer API and thin client
 
-Status: draft contract baseline complete; no production service deployment yet.
+Status: draft contract baseline and first local client complete; no production service deployment yet.
 
 Implemented baseline:
 
@@ -62,9 +62,11 @@ Implemented baseline:
 - direct structural-child traversal derived only from normative `parent_id`;
 - deterministic public error taxonomy;
 - exact declared compatibility with `bcast.package/0.1.0`;
-- source-independent mechanical contract tests in the public conformance suite.
+- source-independent mechanical contract tests in the public conformance suite;
+- installable Python client and CLI for local `bcast.package/0.1.0` validation, object retrieval, and direct-child traversal;
+- packaged schema parity checks so the client cannot silently drift from the maintained companion schema in the same revision.
 
-The API contract deliberately does not standardize provider lookup, semantic relationship traversal, amendment graphs, cross-edition traversal, mutation, private compilation operations, authentication, entitlement, or deployment URLs.
+The API contract and thin client deliberately do not standardize or implement provider lookup, semantic relationship traversal, amendment graphs, cross-edition traversal, mutation, private compilation operations, authentication, entitlement, source acquisition, or deployment URLs.
 
 ## Outside the public roadmap
 

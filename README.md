@@ -62,17 +62,35 @@ BCAST is public and pre-1.0. Draft package and read-only API contracts exist, bu
 
 The repository history and public surface were reviewed for publication safety before the public cutover on August 26, 2026. Apache-2.0 is the selected license for BCAST-authored public-repository material. The completed publication record is in [`docs/publication-checklist.md`](docs/publication-checklist.md).
 
+## Use the Python client
+
+The repository includes a thin, source-independent Python client for `bcast.package/0.1.0`. It reads local BCAST package JSON, validates the public schema and deterministic identity/structure invariants, retrieves canonical object records, and lists direct structural children. It does not contact source providers, acquire licensed material, invoke private compiler services, or require the proprietary BCAST corpus.
+
+From a checkout:
+
+```bash
+python -m pip install -e .
+bcast validate examples/synthetic/valid/package-0.1.0.json
+bcast get examples/synthetic/valid/package-0.1.0.json \
+  bcastobj:sha256:55843871042292a117a3363dadcef7f032c8bb9c77bb3eac9098ec7354dd3111
+bcast children examples/synthetic/valid/package-0.1.0.json \
+  bcastobj:sha256:9b9dab8a4909cb09bd2a2b454a09949a6b30f7f69a8883d0137859e06baa73f8
+```
+
+The client is an implementation of the public contract, not a compatibility layer for alpha Python classes, CLI commands, internal schemas, or generated artifacts.
+
 ## Validate the public contracts
 
 ```bash
 python -m pip install -r conformance/requirements.txt
 python -m unittest conformance.test_conformance
+python -m unittest discover -s tests
 python conformance/validate.py \
   spec/schemas/package-0.1.0.schema.json \
   examples/synthetic/valid/package-0.1.0.json
 ```
 
-Validation is deliberately source-independent. It checks the public package contract, deterministic identity/structure invariants, and the read-only API contract without invoking any private compiler or source acquisition path.
+Validation is deliberately source-independent. It checks the public package contract, deterministic identity/structure invariants, the read-only API contract, and the thin public client without invoking any private compiler or source acquisition path.
 
 ## Repository map
 
@@ -82,6 +100,7 @@ Validation is deliberately source-independent. It checks the public package cont
 - [`spec/api-0.1.0.md`](spec/api-0.1.0.md) — first public read-only API contract
 - [`spec/openapi/bcast-api-0.1.0.openapi.json`](spec/openapi/bcast-api-0.1.0.openapi.json) — companion OpenAPI 3.2 description
 - [`spec/schemas/package-0.1.0.schema.json`](spec/schemas/package-0.1.0.schema.json) — companion package JSON Schema
+- [`src/bcast/`](src/bcast/) — thin Python consumer client and CLI
 - [`examples/synthetic/README.md`](examples/synthetic/README.md) — conformance fixture taxonomy and redistribution statement
 - [`examples/synthetic/valid/package-0.1.0.json`](examples/synthetic/valid/package-0.1.0.json) — project-authored conforming fixture
 - [`examples/synthetic/invalid/package-0.1.0-missing-parent.json`](examples/synthetic/invalid/package-0.1.0-missing-parent.json) — project-authored nonconforming fixture

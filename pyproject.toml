@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bcast-client"
+version = "0.1.0.dev0"
+description = "Thin public consumer client for BCAST package contracts"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "Laura Joy Hutchins" }]
+dependencies = ["jsonschema>=4.25,<5"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3",
+  "Typing :: Typed"
+]
+
+[project.scripts]
+bcast = "bcast.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+bcast = ["schemas/*.json", "py.typed"]
