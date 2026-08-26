@@ -16,17 +16,17 @@ Canonical identity distinguishes at least:
 - edition or revision state;
 - the regulatory object represented within that publication state.
 
-The first concrete wire syntax is defined by [`package-0.1.md`](package-0.1.md).
+The first concrete wire syntax is defined by [`package-0.1.0.md`](package-0.1.0.md).
 
-## 0.1 wire syntax
+## 0.1.0 wire syntax
 
-`bcast.package/0.1` uses deterministic SHA-256 identities over canonical JSON:
+`bcast.package/0.1.0` uses deterministic SHA-256 identities over canonical JSON:
 
 - `bcastpub:sha256:<digest>` for publication identity;
 - `bcastobj:sha256:<digest>` for regulatory-object identity;
 - `bcastpkg:sha256:<digest>` for one package version.
 
-The exact canonical inputs are normative in `package-0.1.md`.
+The exact canonical inputs are normative in [`package-0.1.0.md`](package-0.1.0.md).
 
 Identity inputs exclude provider coordinates, source text, source offsets, labels, and storage paths.
 
@@ -44,7 +44,7 @@ Identity must not be silently reused across editions to imply unchanged meaning.
 
 A jurisdictional amendment must not silently overwrite the identity of the base-publication object it modifies. Base objects, amendment operations, and materialized results need distinguishable identities or provenance sufficient to reconstruct their relationship.
 
-The 0.1 package contract does not yet standardize amendment operations.
+The 0.1.0 package contract does not yet standardize amendment operations.
 
 ## Alias behavior
 

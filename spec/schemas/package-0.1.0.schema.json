@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:bcast:schema:package:0.1",
-  "title": "BCAST Package 0.1",
-  "description": "Provider-neutral consumer contract for a BCAST regulatory package.",
+  "$id": "urn:bcast:schema:package:0.1.0",
+  "title": "BCAST Package 0.1.0",
+  "description": "Companion JSON Schema for the normative provider-neutral BCAST Package 0.1.0 contract.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "bcast.package/0.1"
+      "const": "bcast.package/0.1.0"
     },
     "package_id": {
       "type": "string",

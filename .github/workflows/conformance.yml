@@ -23,4 +23,4 @@ jobs:
       - name: Run conformance regression tests
         run: python -m unittest conformance.test_conformance
       - name: Validate synthetic package
-        run: python conformance/validate.py spec/schemas/package-0.1.schema.json examples/synthetic/package-0.1.json
+        run: python conformance/validate.py spec/schemas/package-0.1.0.schema.json examples/synthetic/valid/package-0.1.0.json

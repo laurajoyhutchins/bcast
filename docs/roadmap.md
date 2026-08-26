@@ -4,7 +4,7 @@ This roadmap covers the public technical surface only. It does not describe priv
 
 ## M0 — Public surface foundation
 
-Status: implemented in the private pre-publication repository.
+Status: complete; repository public as of August 26, 2026.
 
 Deliverables:
 
@@ -20,17 +20,19 @@ Exit condition: the repository can explain what BCAST exposes without implying t
 
 ## M1 — First package contract
 
-Status: implementation baseline complete; public release still gated.
+Status: draft implementation baseline complete; no tagged package release yet.
 
 Implemented baseline:
 
-- versioned `bcast.package/0.1` JSON Schema;
-- project-authored synthetic package fixture;
+- normative `bcast.package/0.1.0` semantic contract;
+- companion JSON Schema for `bcast.package/0.1.0`;
+- project-authored synthetic valid and invalid conformance fixtures;
 - deterministic local conformance validation;
 - provider-neutral identity wire rules;
+- explicit precedence of the normative specification over companion artifacts;
 - explicit alpha-to-public migration boundary.
 
-Remaining release work is publication governance, including the deliberate license choice and final publication checklist. Those gates do not justify importing private compiler machinery into this repository.
+Before a stable 1.0 contract, changes remain governed by the pre-1.0 compatibility policy and must be explicit and versioned rather than silently reinterpreting an existing contract coordinate.
 
 ## M2 — Consumer API
 
