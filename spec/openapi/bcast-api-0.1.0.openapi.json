@@ -1,0 +1,322 @@
+{
+  "openapi": "3.2.0",
+  "info": {
+    "title": "BCAST Read-Only Consumer API",
+    "version": "0.1.0",
+    "summary": "Provider-neutral read access to BCAST packages and regulatory objects.",
+    "description": "Companion OpenAPI description for the normative `bcast.api/0.1.0` contract. This contract exposes only consumer-facing retrieval semantics backed by `bcast.package/0.1.0`; it does not expose provider APIs, ingestion, normalization, review, compilation, entitlement, credential, or package-build operations.",
+    "license": {
+      "name": "Apache-2.0"
+    }
+  },
+  "x-bcast-contract": "bcast.api/0.1.0",
+  "x-bcast-compatible-package-contracts": [
+    "bcast.package/0.1.0"
+  ],
+  "x-bcast-error-semantics": {
+    "not_found": {
+      "http_status": 404,
+      "meaning": "The requested canonical package or object is not present in the selected public BCAST view."
+    },
+    "unresolved": {
+      "http_status": 409,
+      "meaning": "The canonical resource is known, but the requested representation cannot be supplied because the relevant public BCAST state is unresolved."
+    },
+    "unsupported": {
+      "http_status": 422,
+      "meaning": "The requested public representation or capability is explicitly unsupported by this API contract or the relevant public BCAST state."
+    },
+    "incompatible_version": {
+      "http_status": 409,
+      "meaning": "The resource uses a BCAST contract version that is not declared compatible with bcast.api/0.1.0."
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Deployment-relative base. Deployment host, base path, authentication, and entitlement policy are outside this contract."
+    }
+  ],
+  "paths": {
+    "/packages/{package_id}/metadata": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/PackageId"
+        }
+      ],
+      "get": {
+        "operationId": "getPackageMetadata",
+        "summary": "Retrieve package metadata",
+        "description": "Returns the package identity, contract coordinate, package release coordinate, and public publication metadata without the object array.",
+        "responses": {
+          "200": {
+            "description": "Package metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackageMetadata"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          }
+        }
+      }
+    },
+    "/packages/{package_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/PackageId"
+        }
+      ],
+      "get": {
+        "operationId": "getPackage",
+        "summary": "Retrieve a BCAST package",
+        "description": "Returns the complete public package exactly according to bcast.package/0.1.0.",
+        "responses": {
+          "200": {
+            "description": "BCAST package.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/package-0.1.0.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          }
+        }
+      }
+    },
+    "/packages/{package_id}/objects/{object_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/PackageId"
+        },
+        {
+          "$ref": "#/components/parameters/ObjectId"
+        }
+      ],
+      "get": {
+        "operationId": "getObject",
+        "summary": "Retrieve one regulatory object",
+        "description": "Returns the exact public object record identified by object_id within the selected package. Objects with resolved, unresolved, or unsupported public status remain retrievable as records.",
+        "responses": {
+          "200": {
+            "description": "BCAST regulatory object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/package-0.1.0.schema.json#/properties/objects/items"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          }
+        }
+      }
+    },
+    "/packages/{package_id}/objects/{object_id}/children": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/PackageId"
+        },
+        {
+          "$ref": "#/components/parameters/ObjectId"
+        }
+      ],
+      "get": {
+        "operationId": "listStructuralChildren",
+        "summary": "List direct structural children",
+        "description": "Returns objects whose parent_id equals object_id in the selected package. Results are ordered lexicographically by object_id. This is structural parentage only; it does not create semantic relationship, amendment, or cross-edition traversal semantics.",
+        "responses": {
+          "200": {
+            "description": "Direct structural children.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../schemas/package-0.1.0.schema.json#/properties/objects/items"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "PackageId": {
+        "name": "package_id",
+        "in": "path",
+        "required": true,
+        "description": "Canonical BCAST package identifier.",
+        "schema": {
+          "type": "string",
+          "pattern": "^bcastpkg:sha256:[0-9a-f]{64}$"
+        }
+      },
+      "ObjectId": {
+        "name": "object_id",
+        "in": "path",
+        "required": true,
+        "description": "Canonical provider-neutral BCAST regulatory object identifier.",
+        "schema": {
+          "type": "string",
+          "pattern": "^bcastobj:sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "schemas": {
+      "PackageMetadata": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "package_id",
+          "package_version",
+          "publication"
+        ],
+        "properties": {
+          "schema_version": {
+            "$ref": "../schemas/package-0.1.0.schema.json#/properties/schema_version"
+          },
+          "package_id": {
+            "$ref": "../schemas/package-0.1.0.schema.json#/properties/package_id"
+          },
+          "package_version": {
+            "$ref": "../schemas/package-0.1.0.schema.json#/properties/package_version"
+          },
+          "publication": {
+            "$ref": "../schemas/package-0.1.0.schema.json#/properties/publication"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "not_found",
+              "unresolved",
+              "unsupported",
+              "incompatible_version"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resource_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Requested canonical resource was not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "not_found": {
+                "value": {
+                  "code": "not_found",
+                  "message": "Requested canonical resource was not found."
+                }
+              }
+            }
+          }
+        }
+      },
+      "Unresolved": {
+        "description": "Requested representation is not available because the public resource state is unresolved.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "unresolved": {
+                "value": {
+                  "code": "unresolved",
+                  "message": "Requested representation is not available because the public resource state is unresolved."
+                }
+              }
+            }
+          }
+        }
+      },
+      "Unsupported": {
+        "description": "Requested public representation or capability is unsupported.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "unsupported": {
+                "value": {
+                  "code": "unsupported",
+                  "message": "Requested public representation or capability is unsupported."
+                }
+              }
+            }
+          }
+        }
+      },
+      "IncompatibleVersion": {
+        "description": "Resource contract version is incompatible with bcast.api/0.1.0.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "incompatible_version": {
+                "value": {
+                  "code": "incompatible_version",
+                  "message": "Resource contract version is incompatible with bcast.api/0.1.0."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

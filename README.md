@@ -25,9 +25,9 @@ The public surface contains or is intended to contain:
 - synthetic or clearly redistributable examples;
 - integration, security, contribution, and rights documentation.
 
-The first maintained package contract is [`bcast.package/0.1.0`](spec/package-0.1.0.md). It is a pre-1.0 draft contract and is exercised by synthetic valid and invalid conformance fixtures plus deterministic local validation.
+The first maintained package contract is [`bcast.package/0.1.0`](spec/package-0.1.0.md). The first maintained read-only API contract is [`bcast.api/0.1.0`](spec/api-0.1.0.md), explicitly compatible only with `bcast.package/0.1.0`. Both are pre-1.0 drafts exercised by deterministic public conformance checks.
 
-The human-readable BCAST specification is normative. JSON Schemas, validators, examples, generated documentation, and client implementations are companion artifacts; if a companion artifact conflicts with the normative specification, the specification wins. See [`spec/README.md`](spec/README.md).
+The human-readable BCAST specification is normative. JSON Schemas, OpenAPI descriptions, validators, examples, generated documentation, and client implementations are companion artifacts; if a companion artifact conflicts with the normative specification, the specification wins. See [`spec/README.md`](spec/README.md).
 
 ## What this repository does not contain
 
@@ -58,30 +58,35 @@ Source publications remain subject to the copyright, licensing, access, and redi
 
 ## Status
 
-BCAST is public and pre-1.0. The first package contract exists as a draft, but no public service API has been released and compatibility rules may evolve before 1.0.
+BCAST is public and pre-1.0. Draft package and read-only API contracts exist, but no production BCAST service has been deployed and no tagged BCAST standards release exists yet. Compatibility rules may evolve before 1.0 only through explicit versioned changes.
 
 The repository history and public surface were reviewed for publication safety before the public cutover on August 26, 2026. Apache-2.0 is the selected license for BCAST-authored public-repository material. The completed publication record is in [`docs/publication-checklist.md`](docs/publication-checklist.md).
 
-## Validate the synthetic package
+## Validate the public contracts
 
 ```bash
 python -m pip install -r conformance/requirements.txt
+python -m unittest conformance.test_conformance
 python conformance/validate.py \
   spec/schemas/package-0.1.0.schema.json \
   examples/synthetic/valid/package-0.1.0.json
 ```
 
-Validation is deliberately source-independent. It checks the public contract and deterministic identity/structure invariants without invoking any private compiler or source acquisition path.
+Validation is deliberately source-independent. It checks the public package contract, deterministic identity/structure invariants, and the read-only API contract without invoking any private compiler or source acquisition path.
 
 ## Repository map
 
 - [`LICENSE`](LICENSE) — Apache License 2.0 for BCAST-authored repository material
+- [`CITATION.cff`](CITATION.cff) — project-level machine-readable citation metadata
 - [`spec/package-0.1.0.md`](spec/package-0.1.0.md) — first public package contract
+- [`spec/api-0.1.0.md`](spec/api-0.1.0.md) — first public read-only API contract
+- [`spec/openapi/bcast-api-0.1.0.openapi.json`](spec/openapi/bcast-api-0.1.0.openapi.json) — companion OpenAPI 3.2 description
 - [`spec/schemas/package-0.1.0.schema.json`](spec/schemas/package-0.1.0.schema.json) — companion package JSON Schema
 - [`examples/synthetic/README.md`](examples/synthetic/README.md) — conformance fixture taxonomy and redistribution statement
 - [`examples/synthetic/valid/package-0.1.0.json`](examples/synthetic/valid/package-0.1.0.json) — project-authored conforming fixture
 - [`examples/synthetic/invalid/package-0.1.0-missing-parent.json`](examples/synthetic/invalid/package-0.1.0-missing-parent.json) — project-authored nonconforming fixture
 - [`conformance/validate.py`](conformance/validate.py) — deterministic local validator
+- [`docs/standards-governance.md`](docs/standards-governance.md) — normative-change, status, release, errata, and citation process
 - [`docs/product-boundary.md`](docs/product-boundary.md) — public/private product boundary
 - [`docs/architecture.md`](docs/architecture.md) — public-facing architecture
 - [`docs/source-and-rights.md`](docs/source-and-rights.md) — source and redistribution rules

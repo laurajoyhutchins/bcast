@@ -36,9 +36,9 @@ Before a stable 1.0 contract, changes remain governed by the pre-1.0 compatibili
 
 ## M2 — Standards governance and citable releases
 
-Define how the public BCAST standard changes and how immutable release snapshots are identified.
+Status: governance baseline complete; no tagged standards release yet.
 
-Deliverables:
+Implemented baseline:
 
 - maintainer-led normative-change governance with an explicit public/private decision boundary;
 - draft, stable, deprecated, and withdrawn standard statuses;
@@ -51,15 +51,20 @@ Exit condition: a future BCAST contract can be released and cited without a Git 
 
 ## M3 — Consumer API
 
-Publish a read-oriented service contract around BCAST packages.
+Status: draft contract baseline complete; no production service deployment yet.
 
-Deliverables:
+Implemented baseline:
 
-- versioned OpenAPI specification;
-- package/object retrieval operations;
-- supported relationship traversal;
-- explicit package/API compatibility behavior;
-- thin client SDK generation or mechanical contract checking.
+- normative `bcast.api/0.1.0` read-only contract;
+- companion OpenAPI 3.2 description;
+- package metadata and full-package retrieval;
+- canonical object retrieval;
+- direct structural-child traversal derived only from normative `parent_id`;
+- deterministic public error taxonomy;
+- exact declared compatibility with `bcast.package/0.1.0`;
+- source-independent mechanical contract tests in the public conformance suite.
+
+The API contract deliberately does not standardize provider lookup, semantic relationship traversal, amendment graphs, cross-edition traversal, mutation, private compilation operations, authentication, entitlement, or deployment URLs.
 
 ## Outside the public roadmap
 
