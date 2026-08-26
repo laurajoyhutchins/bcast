@@ -6,7 +6,7 @@ BCAST is a provider-neutral representation and interface layer for compiled buil
 source providers -> private BCAST compilation -> public BCAST contracts -> downstream tools
 ```
 
-This repository is BCAST's public technical surface. It is currently staged privately pending the final immediately-before-publication checks. It is **not** the production compiler and does not contain BCAST's proprietary compiled regulatory corpus.
+This repository is BCAST's public technical surface. It is **not** the production compiler and does not contain BCAST's proprietary compiled regulatory corpus.
 
 ## What BCAST is
 
@@ -56,9 +56,9 @@ Source publications remain subject to the copyright, licensing, access, and redi
 
 ## Status
 
-BCAST is pre-1.0. The first package contract exists, but no public service API has been released and compatibility rules may evolve before 1.0.
+BCAST is public and pre-1.0. The first package contract exists, but no public service API has been released and compatibility rules may evolve before 1.0.
 
-The repository history and current public surface have been reviewed for publication safety through the audit recorded in [`docs/publication-audit-2026-08-25.md`](docs/publication-audit-2026-08-25.md). Apache-2.0 is the selected license for BCAST-authored public-repository material. The repository remains private until the final pre-visibility checks in [`docs/publication-checklist.md`](docs/publication-checklist.md) pass.
+The repository history and public surface were reviewed for publication safety before the public cutover on August 26, 2026. Apache-2.0 is the selected license for BCAST-authored public-repository material. The completed publication record is in [`docs/publication-checklist.md`](docs/publication-checklist.md).
 
 ## Validate the synthetic package
 
@@ -83,7 +83,7 @@ Validation is deliberately source-independent. It checks the public contract and
 - [`docs/source-and-rights.md`](docs/source-and-rights.md) — source and redistribution rules
 - [`docs/migration-from-alpha.md`](docs/migration-from-alpha.md) — clean migration boundary from alpha
 - [`docs/publication-audit-2026-08-25.md`](docs/publication-audit-2026-08-25.md) — publication-safety audit evidence
-- [`docs/publication-checklist.md`](docs/publication-checklist.md) — remaining publication gates
+- [`docs/publication-checklist.md`](docs/publication-checklist.md) — completed publication record
 - [`docs/roadmap.md`](docs/roadmap.md) — public-surface milestones
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — acceptable contribution scope
 - [`SECURITY.md`](SECURITY.md) — security and sensitive-data reporting

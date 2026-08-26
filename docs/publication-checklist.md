@@ -1,8 +1,8 @@
 # Publication Checklist
 
-BCAST must remain private until every incomplete item below is complete.
+BCAST became public on August 26, 2026. This file records the publication gates and cutover evidence.
 
-Evidence for the original publication-safety audit is recorded in [`publication-audit-2026-08-25.md`](publication-audit-2026-08-25.md). That audit covers repository history through `45abcaadfa1d354e40aee5155fce73035fe58569`. The final pre-publication sweep on 2026-08-26 reviewed the licensing candidate at `ffbb1da3f1bd8d72186e650902e63e61ec6489bb`; the only subsequent candidate change is this checklist evidence update and must remain content-only.
+Evidence for the original publication-safety audit is recorded in [`publication-audit-2026-08-25.md`](publication-audit-2026-08-25.md). That audit covers repository history through `45abcaadfa1d354e40aee5155fce73035fe58569`. The licensing and final pre-publication review were merged to `main` as `7251e82a4faf9bbecc504645fc2b01a4cd3f6a48`, whose tree exactly matched the reviewed publication candidate.
 
 ## Repository history
 
@@ -34,13 +34,19 @@ Evidence for the original publication-safety audit is recorded in [`publication-
 - [x] Every machine-consumed public contract currently present has an explicit version.
 - [x] Compatibility impact of the initial package contract has been reviewed and documented as pre-1.0.
 - [x] Pre-1.0 instability is clearly communicated until a `1.0.0` public contract exists.
-- [x] Tags and releases were reviewed immediately before publication: none are present, so none imply undocumented package or API compatibility.
+- [x] Tags and releases were reviewed immediately before publication: none were present, so none implied undocumented package or API compatibility.
 
 ## Final publication review
 
-- [x] Repository topics, description, homepage links, issue templates, pull-request template, and security links were reviewed as a public visitor would see them. Description, homepage, and topics are currently empty rather than misleading; issue reporting and pull-request guidance enforce the public/private boundary and route sensitive disclosures to `SECURITY.md`.
+- [x] Repository topics, description, homepage links, issue templates, pull-request template, and security links were reviewed as a public visitor would see them. Description, homepage, and topics were intentionally empty rather than misleading; issue reporting and pull-request guidance enforce the public/private boundary and route sensitive disclosures to `SECURITY.md`.
 - [x] A fresh credential-pattern scan and source-rights review were run immediately before publication. No credential-shaped hits were found in the maintained default-branch content; the exact licensing-candidate diff and tree were reviewed for restricted source material, private provider data, private compiler/corpus assets, and production mappings, with no such material found.
 - [x] Confirm the maintained public tree contains no empty scaffolding that implies unsupported contracts or SDKs.
 - [x] Confirm the public roadmap contains only consumer-facing work and does not expose the private compilation frontier.
-- [x] Confirm the repository head descends only from the audited public-safe history and review every post-audit commit. The licensing candidate is five commits ahead of `45abcaadfa1d354e40aee5155fce73035fe58569`, zero commits behind, and all five post-audit commits were reviewed.
-- [ ] Change repository visibility to public only after confirming the final merged tree matches this reviewed candidate and no new commit has appeared.
+- [x] Confirm the repository head descends only from the audited public-safe history and review every post-audit commit.
+- [x] Confirm the final merged tree matches the reviewed publication candidate and change repository visibility to public.
+
+## Post-publication controls
+
+- [x] GitHub reports repository visibility as `public`.
+- [x] Overcenter installed and verified `branch-policy-v1` with squash-only merges, automatic merged-branch deletion, and required `conformance` checks.
+- [x] The `conformance` workflow was re-run after publication on a real GitHub-hosted runner and completed successfully.
