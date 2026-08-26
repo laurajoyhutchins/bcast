@@ -6,7 +6,7 @@ BCAST is a provider-neutral representation and interface layer for compiled buil
 source providers -> private BCAST compilation -> public BCAST contracts -> downstream tools
 ```
 
-This repository is the future public technical surface for BCAST. It is **not** the production compiler and does not contain BCAST's proprietary compiled regulatory corpus.
+This repository is BCAST's public technical surface. It is currently staged privately pending a deliberate license choice and the final immediately-before-publication checks. It is **not** the production compiler and does not contain BCAST's proprietary compiled regulatory corpus.
 
 ## What BCAST is
 
@@ -46,15 +46,17 @@ The durable boundary is:
 
 ## Status
 
-BCAST is pre-1.0. The first package contract now exists, but no public service API has been released and compatibility rules may evolve before 1.0.
+BCAST is pre-1.0. The first package contract exists, but no public service API has been released and compatibility rules may evolve before 1.0.
 
-This repository remains private while its licensing model and publication checks are completed. Visibility should not change until the publication checklist passes.
+The repository history and current public surface have been reviewed for publication safety through the audit recorded in [`docs/publication-audit-2026-08-25.md`](docs/publication-audit-2026-08-25.md). The repository remains private until a public-artifact license is selected deliberately and the final pre-visibility checks in [`docs/publication-checklist.md`](docs/publication-checklist.md) pass.
 
 ## Validate the synthetic package
 
 ```bash
 python -m pip install -r conformance/requirements.txt
-python conformance/validate.py   spec/schemas/package-0.1.schema.json   examples/synthetic/package-0.1.json
+python conformance/validate.py \
+  spec/schemas/package-0.1.schema.json \
+  examples/synthetic/package-0.1.json
 ```
 
 Validation is deliberately source-independent. It checks the public contract and deterministic identity/structure invariants without invoking any private compiler or source acquisition path.
@@ -69,6 +71,8 @@ Validation is deliberately source-independent. It checks the public contract and
 - [`docs/architecture.md`](docs/architecture.md) — public-facing architecture
 - [`docs/source-and-rights.md`](docs/source-and-rights.md) — source and redistribution rules
 - [`docs/migration-from-alpha.md`](docs/migration-from-alpha.md) — clean migration boundary from alpha
+- [`docs/publication-audit-2026-08-25.md`](docs/publication-audit-2026-08-25.md) — publication-safety audit evidence
+- [`docs/publication-checklist.md`](docs/publication-checklist.md) — remaining publication gates
 - [`docs/roadmap.md`](docs/roadmap.md) — public-surface milestones
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — acceptable contribution scope
 - [`SECURITY.md`](SECURITY.md) — security and sensitive-data reporting
