@@ -42,6 +42,12 @@ Before opening a pull request, confirm all of the following:
 
 When source rights are uncertain, omit the material and describe the interoperability problem without reproducing the source.
 
+## Licensing of contributions
+
+Unless explicitly stated otherwise, contributions intentionally submitted for inclusion in BCAST are submitted under the Apache License, Version 2.0, consistent with Section 5 of that license.
+
+Contributors must have the authority to grant the rights required for their contributions. Do not submit third-party material merely because you can access it or because BCAST interoperates with it. The source and redistribution requirements in [`docs/source-and-rights.md`](docs/source-and-rights.md) continue to apply.
+
 ## Public contract changes
 
 Public contract proposals should describe consumer meaning rather than private implementation. Provider-specific object shapes should not become canonical BCAST structures merely because they are convenient upstream representations.

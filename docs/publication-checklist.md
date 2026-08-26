@@ -25,9 +25,9 @@ Evidence for completed publication-safety checks is recorded in [`publication-au
 
 ## Licensing
 
-- [ ] The licensing model for public BCAST artifacts has been selected deliberately.
-- [ ] A corresponding `LICENSE` file is present.
-- [ ] The license text and surrounding documentation make clear that BCAST does not sublicense third-party publisher or standards content beyond rights actually held.
+- [x] The licensing model for public BCAST artifacts has been selected deliberately: Apache License 2.0 for BCAST-authored repository material.
+- [x] A corresponding root `LICENSE` file is present with the official Apache License 2.0 text.
+- [x] The license text and surrounding documentation make clear that BCAST does not sublicense third-party publisher or standards content beyond rights actually held.
 
 ## Compatibility and release readiness
 
