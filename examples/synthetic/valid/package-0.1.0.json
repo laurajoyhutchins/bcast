@@ -1,5 +1,5 @@
 {
-  "schema_version": "bcast.package/0.1",
+  "schema_version": "bcast.package/0.1.0",
   "package_id": "bcastpkg:sha256:51b6229012ad1f71303d9018e0e7e9fdfc68fb66724e258dbd767979ccf2cea1",
   "package_version": "2026.08.synthetic.1",
   "publication": {

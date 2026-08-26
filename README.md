@@ -25,7 +25,9 @@ The public surface contains or is intended to contain:
 - synthetic or clearly redistributable examples;
 - integration, security, contribution, and rights documentation.
 
-The first maintained package contract is [`bcast.package/0.1`](spec/package-0.1.md). It is a pre-1.0 contract and is exercised by a synthetic fixture plus deterministic local conformance validation.
+The first maintained package contract is [`bcast.package/0.1.0`](spec/package-0.1.0.md). It is a pre-1.0 draft contract and is exercised by synthetic valid and invalid conformance fixtures plus deterministic local validation.
+
+The human-readable BCAST specification is normative. JSON Schemas, validators, examples, generated documentation, and client implementations are companion artifacts; if a companion artifact conflicts with the normative specification, the specification wins. See [`spec/README.md`](spec/README.md).
 
 ## What this repository does not contain
 
@@ -56,7 +58,7 @@ Source publications remain subject to the copyright, licensing, access, and redi
 
 ## Status
 
-BCAST is public and pre-1.0. The first package contract exists, but no public service API has been released and compatibility rules may evolve before 1.0.
+BCAST is public and pre-1.0. The first package contract exists as a draft, but no public service API has been released and compatibility rules may evolve before 1.0.
 
 The repository history and public surface were reviewed for publication safety before the public cutover on August 26, 2026. Apache-2.0 is the selected license for BCAST-authored public-repository material. The completed publication record is in [`docs/publication-checklist.md`](docs/publication-checklist.md).
 
@@ -65,8 +67,8 @@ The repository history and public surface were reviewed for publication safety b
 ```bash
 python -m pip install -r conformance/requirements.txt
 python conformance/validate.py \
-  spec/schemas/package-0.1.schema.json \
-  examples/synthetic/package-0.1.json
+  spec/schemas/package-0.1.0.schema.json \
+  examples/synthetic/valid/package-0.1.0.json
 ```
 
 Validation is deliberately source-independent. It checks the public contract and deterministic identity/structure invariants without invoking any private compiler or source acquisition path.
@@ -74,9 +76,11 @@ Validation is deliberately source-independent. It checks the public contract and
 ## Repository map
 
 - [`LICENSE`](LICENSE) — Apache License 2.0 for BCAST-authored repository material
-- [`spec/package-0.1.md`](spec/package-0.1.md) — first public package contract
-- [`spec/schemas/package-0.1.schema.json`](spec/schemas/package-0.1.schema.json) — package JSON Schema
-- [`examples/synthetic/package-0.1.json`](examples/synthetic/package-0.1.json) — project-authored synthetic fixture
+- [`spec/package-0.1.0.md`](spec/package-0.1.0.md) — first public package contract
+- [`spec/schemas/package-0.1.0.schema.json`](spec/schemas/package-0.1.0.schema.json) — companion package JSON Schema
+- [`examples/synthetic/README.md`](examples/synthetic/README.md) — conformance fixture taxonomy and redistribution statement
+- [`examples/synthetic/valid/package-0.1.0.json`](examples/synthetic/valid/package-0.1.0.json) — project-authored conforming fixture
+- [`examples/synthetic/invalid/package-0.1.0-missing-parent.json`](examples/synthetic/invalid/package-0.1.0-missing-parent.json) — project-authored nonconforming fixture
 - [`conformance/validate.py`](conformance/validate.py) — deterministic local validator
 - [`docs/product-boundary.md`](docs/product-boundary.md) — public/private product boundary
 - [`docs/architecture.md`](docs/architecture.md) — public-facing architecture

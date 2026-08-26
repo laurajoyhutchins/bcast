@@ -1,8 +1,10 @@
-# BCAST Package Contract 0.1
+# BCAST Package Contract 0.1.0
 
-Status: pre-1.0 private preview
+Status: pre-1.0 draft
 
-`bcast.package/0.1` is the first maintained consumer-facing BCAST package contract. It is intentionally smaller than the historical compiler models in `building-code-ast-alpha`.
+`bcast.package/0.1.0` is the first maintained consumer-facing BCAST package contract. It is intentionally smaller than the historical compiler models in `building-code-ast-alpha`.
+
+This document is normative. The companion JSON Schema, validator, examples, generated documentation, and client implementations assist conformance and interoperability but do not supersede this specification. If a companion artifact conflicts with this document or the linked normative identifier and compatibility rules, the normative specification wins.
 
 The contract carries only information a downstream consumer can reasonably depend on:
 
@@ -22,10 +24,10 @@ It does not expose provider API objects, private locators, ingestion state, norm
 Every package declares:
 
 ```json
-"schema_version": "bcast.package/0.1"
+"schema_version": "bcast.package/0.1.0"
 ```
 
-The `0.1` contract is pre-1.0. Breaking changes may occur according to [`compatibility.md`](compatibility.md).
+The `0.1.0` contract is pre-1.0. Breaking changes may occur according to [`compatibility.md`](compatibility.md), but an existing contract version must not be silently reinterpreted.
 
 ## Deterministic identities
 
@@ -102,7 +104,7 @@ The package version is a BCAST release coordinate, not a publisher identifier.
 
 `objects` is a flat array. Structural containment is represented by `parent_id`.
 
-A conforming package must additionally satisfy the deterministic checks implemented by `conformance/validate.py`:
+A conforming package must satisfy all of these normative deterministic checks:
 
 - publication, package, and object IDs recompute exactly;
 - object IDs are unique;
@@ -111,7 +113,7 @@ A conforming package must additionally satisfy the deterministic checks implemen
 - an object cannot parent itself;
 - structural parentage is acyclic.
 
-JSON Schema validation alone does not prove these cross-record invariants.
+The public validator implements these checks. JSON Schema validation alone does not prove these cross-record invariants.
 
 ## Content and rights
 
@@ -119,9 +121,13 @@ The schema can carry plain text because authorized BCAST consumers may receive s
 
 The contract does not grant rights to third-party source material. See [`../docs/source-and-rights.md`](../docs/source-and-rights.md).
 
+## Media type
+
+This contract does not define or claim an IANA-registered BCAST-specific media type. Transport-level media type behavior may be standardized separately if an interoperability need justifies it.
+
 ## Deliberate omissions
 
-Version 0.1 does not yet standardize:
+Version 0.1.0 does not yet standardize:
 
 - semantic relationship arrays;
 - amendment operations or materialized amendment graphs;
