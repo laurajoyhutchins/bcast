@@ -45,13 +45,13 @@ The public side defines only what downstream consumers need to rely on:
 
 ## Package contract
 
-The package contract will eventually define the minimum interoperable representation of compiled regulatory information. It should expose stable consumer meaning rather than internal compiler state.
+The first maintained package contract is [`bcast.package/0.1`](../spec/package-0.1.md). It is a deliberately small pre-1.0 consumer contract for package identity, publication identity, regulatory objects, structural parentage, explicit resolution state, public assurance state, optional plain text, and source-safe provenance.
 
-No production package schema is published yet.
+The contract describes consumer-visible output. It does not expose provider acquisition, normalization, review queues, compiler intermediate representations, graph compilation, or package-build machinery.
 
 ## Service API
 
-The future public service API should be read-oriented. Candidate operations include retrieving package metadata, retrieving a regulatory object by canonical identity, traversing public relationships, and checking compatibility.
+No public service API has been released yet. A future public service API should be read-oriented. Candidate operations include retrieving package metadata, retrieving a regulatory object by canonical identity, traversing public relationships, and checking compatibility.
 
 Ingestion, normalization, review, and package-build operations are private and should not appear in the public API merely because an internal endpoint exists.
 
@@ -61,7 +61,9 @@ Public SDKs should be thin clients generated from, or mechanically checked again
 
 ## Conformance
 
-Public conformance tooling should be deterministic and source-independent. It validates that an object or response satisfies a published contract. It does not reproduce the private compiler or independently establish regulatory correctness.
+Public conformance tooling is deterministic and source-independent. It validates that an object or package satisfies a published contract. It does not reproduce the private compiler or independently establish regulatory correctness.
+
+The current validator is [`conformance/validate.py`](../conformance/validate.py), exercised against project-authored synthetic data.
 
 ## Upstream independence
 
