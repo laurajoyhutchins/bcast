@@ -14,10 +14,18 @@ class ObjectNotFoundError(LookupError):
         super().__init__(f"BCAST object not found: {object_id}")
 
 
+class ObjectCoordinateNotFoundError(LookupError):
+    def __init__(self, kind: str, locator: str):
+        self.kind = kind
+        self.locator = locator
+        super().__init__(f"BCAST object not found: kind={kind} locator={locator}")
+
+
 class BcastPackage:
     def __init__(self, data: Mapping[str, Any]):
         self._data = deepcopy(dict(data))
         self._objects = {item["object_id"]: item for item in self._data["objects"]}
+        self._coordinates = {(item["kind"], item["locator"]): item for item in self._data["objects"]}
 
     @classmethod
     def load(cls, path: str | Path) -> "BcastPackage":
@@ -69,3 +77,42 @@ class BcastPackage:
         self.get_object(object_id)
         matches = [item for item in self._data["objects"] if item.get("parent_id") == object_id]
         return deepcopy(sorted(matches, key=lambda item: item["object_id"]))
+
+    def roots(self) -> list[dict[str, Any]]:
+        roots = [item for item in self._data["objects"] if item.get("parent_id") is None]
+        return deepcopy(sorted(roots, key=lambda item: item["object_id"]))
+
+    def parent(self, object_id: str) -> dict[str, Any] | None:
+        record = self.get_object(object_id)
+        parent_id = record.get("parent_id")
+        return None if parent_id is None else self.get_object(parent_id)
+
+    def ancestors(self, object_id: str) -> list[dict[str, Any]]:
+        self.get_object(object_id)
+        chain: list[dict[str, Any]] = []
+        cursor = object_id
+        while True:
+            parent = self.parent(cursor)
+            if parent is None:
+                break
+            chain.append(parent)
+            cursor = parent["object_id"]
+        chain.reverse()
+        return chain
+
+    def descendants(self, object_id: str) -> list[dict[str, Any]]:
+        self.get_object(object_id)
+        pending = [item["object_id"] for item in self.children(object_id)]
+        found: list[dict[str, Any]] = []
+        while pending:
+            current_id = pending.pop()
+            current = self.get_object(current_id)
+            found.append(current)
+            pending.extend(item["object_id"] for item in self.children(current_id))
+        return sorted(found, key=lambda item: item["object_id"])
+
+    def find(self, kind: str, locator: str) -> dict[str, Any]:
+        record = self._coordinates.get((kind, locator))
+        if record is None:
+            raise ObjectCoordinateNotFoundError(kind, locator)
+        return deepcopy(record)
