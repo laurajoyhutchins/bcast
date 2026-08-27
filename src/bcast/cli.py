@@ -6,7 +6,7 @@ import sys
 from typing import Sequence
 
 from .api import BcastApiClient, BcastApiError
-from .package import BcastPackage, ObjectNotFoundError
+from .package import BcastPackage, ObjectCoordinateNotFoundError, ObjectNotFoundError
 from .server import serve_paths
 from .validation import PackageValidationError
 
@@ -25,6 +25,9 @@ def _parser() -> argparse.ArgumentParser:
     children = subparsers.add_parser("children", help="List direct structural children")
     children.add_argument("package")
     children.add_argument("object_id")
+
+    tree = subparsers.add_parser("tree", help="Print the local public structural tree")
+    tree.add_argument("package")
 
     serve = subparsers.add_parser("serve", help="Serve validated local packages through bcast.api/0.1.0")
     serve.add_argument("packages", nargs="+")
@@ -55,6 +58,18 @@ def _print_json(value) -> None:
     print(json.dumps(value, ensure_ascii=False, indent=2))
 
 
+def _print_tree(package: BcastPackage) -> None:
+    def visit(record, depth: int) -> None:
+        label = record.get("label")
+        suffix = f" {label}" if label else ""
+        print(f"{'  ' * depth}{record['kind']} {record['locator']}{suffix}")
+        for child in package.children(record["object_id"]):
+            visit(child, depth + 1)
+
+    for root in package.roots():
+        visit(root, 0)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
@@ -80,7 +95,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             _print_json(package.get_object(args.object_id))
         elif args.command == "children":
             _print_json(package.children(args.object_id))
+        elif args.command == "tree":
+            _print_tree(package)
         return 0
-    except (PackageValidationError, ObjectNotFoundError, BcastApiError, OSError, json.JSONDecodeError) as exc:
+    except (PackageValidationError, ObjectNotFoundError, ObjectCoordinateNotFoundError, BcastApiError, OSError, json.JSONDecodeError) as exc:
         print(f"ERROR {exc}", file=sys.stderr)
         return 1

@@ -2,7 +2,7 @@
 
 from .api import BcastApiClient, BcastApiError, BcastApiProblem, BcastApiProtocolError
 from .identifiers import package_id, publication_id, regulatory_object_id
-from .package import BcastPackage, ObjectNotFoundError
+from .package import BcastPackage, ObjectCoordinateNotFoundError, ObjectNotFoundError
 from .validation import PackageValidationError, validate_package
 
 __all__ = [
@@ -12,6 +12,7 @@ __all__ = [
     "BcastApiProtocolError",
     "BcastPackage",
     "ObjectNotFoundError",
+    "ObjectCoordinateNotFoundError",
     "PackageValidationError",
     "package_id",
     "publication_id",
