@@ -45,4 +45,10 @@ Other public rules:
 - [`identifiers.md`](identifiers.md) — normative provider-neutral identity principles;
 - [`../docs/standards-governance.md`](../docs/standards-governance.md) — process for normative changes, status, releases, errata, and citation.
 
+## Machine-readable discovery index
+
+[`contract-index.json`](contract-index.json) is a non-normative discovery aid for maintained public contract coordinates and their companion files. It does not redefine contract semantics or compatibility; the normative documents above remain authoritative.
+
+Private producers and other pinned implementations should depend on a **contract coordinate plus an exact public BCAST Git revision**. They should not copy schemas or specification semantics into a private parallel standard that can drift from this repository.
+
 Concrete formats belong here only when downstream consumers have a real interface to depend on. Private compiler representations are not promoted into public contracts merely because they already exist.

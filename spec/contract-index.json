@@ -1,0 +1,26 @@
+{
+  "format": "bcast-public-contract-index/1",
+  "normative": false,
+  "pinning": "Pin an exact Git revision plus contract coordinate. This index is discovery metadata, not semantic authority.",
+  "contracts": [
+    {
+      "coordinate": "bcast.package/0.1.0",
+      "status": "draft",
+      "normative_path": "spec/package-0.1.0.md",
+      "companions": [
+        "spec/schemas/package-0.1.0.schema.json"
+      ]
+    },
+    {
+      "coordinate": "bcast.api/0.1.0",
+      "status": "draft",
+      "normative_path": "spec/api-0.1.0.md",
+      "companions": [
+        "spec/openapi/bcast-api-0.1.0.openapi.json"
+      ],
+      "compatible_package_contracts": [
+        "bcast.package/0.1.0"
+      ]
+    }
+  ]
+}
