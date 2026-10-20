@@ -1,6 +1,6 @@
-# Public Roadmap
+# BCAST Software Roadmap
 
-This roadmap covers the public technical surface only. It does not describe private provider ingestion, corpus growth, review operations, or compilation internals.
+This roadmap covers the **public reusable software product**, including the source-independent compiler. Private source acquisition, rights review, restricted mappings, evidence and production corpus are not public deliverables. This ownership is the target architecture, not a completed migration. See [Product boundary](product-boundary.md).
 
 ## M0 — Public surface foundation
 
@@ -16,7 +16,7 @@ Deliverables:
 - compatibility and identifier principles;
 - publication checklist.
 
-Exit condition: the repository can explain what BCAST exposes without implying that the production compiler or corpus is open source.
+Exit condition: the repository distinguishes reusable public software from controlled source data and does not imply that the source corpus is redistributable.
 
 ## M1 — First package contract
 
@@ -70,17 +70,23 @@ Implemented baseline:
 - end-to-end client/server regression tests for unresolved record retrieval, not-found problems, and deterministic child ordering;
 - packaged schema parity checks so the client cannot silently drift from the maintained companion schema in the same revision.
 
-The API contract and public consumer stack deliberately do not standardize or implement provider lookup, semantic relationship traversal, amendment graphs, cross-edition traversal, mutation, private compilation operations, authentication, entitlement, source acquisition, or production deployment URLs. The local reference server is a conformance and integration aid, not the production BCAST service.
+The API contract and public consumer stack deliberately do not standardize or implement provider lookup, semantic relationship traversal, amendment graphs, cross-edition traversal, mutation, private source-acquisition operations, authentication, entitlement, source acquisition, or production deployment URLs. The local reference server is a conformance and integration aid, not the production BCAST service.
 
-## Outside the public roadmap
+## M4 — Reusable public package builder
 
-The following are private product work and are intentionally not tracked here as public deliverables:
+Status: planned; current bounded eCFR producer still mixes generic package construction with source-specific normalization in the private repository.
 
-- production Code Connect, NFPA LiNK, or other provider ingestion;
-- licensed-source acquisition and retention;
-- provider normalization and identity reconciliation;
-- reviewed semantic corpus expansion;
-- cross-publisher and cross-edition production graph construction;
-- amendment compilation;
-- package-materialization internals;
-- private review and verification operations.
+- Implement the smallest source-independent normalized publication input and deterministic 0.2.0 package builder needed to reproduce the accepted synthetic package and eCFR results.
+- Keep canonical identity, content hashing, structural rules and public validation in the public software authority, not a duplicate private producer.
+- Demonstrate synthetic compilation with no private data, credentials or imports.
+- Migrate private ingestion to invoke the exact pinned public builder, prove source/package replay and failure equivalence, then remove duplicate private package assembly.
+- Keep acquisition, source-specific restricted mappings, production evidence, GCS retention, rights approval and corpus publication operations private.
+
+Do not introduce a general provider plugin framework or change a normative consumer contract unless a concrete demonstrated use case requires it.
+
+## Outside the public software roadmap
+
+- Live Code Connect, NFPA LiNK or other controlled-provider acquisition and entitlement management.
+- Licensed-source retention, source-specific private mappings, private evidence and review decisions.
+- Maintained production regulatory corpus, release approvals, generation-pinned storage and rights-scoped distribution.
+- Source-specific fidelity checks against non-redistributable inputs and operational integration infrastructure.
