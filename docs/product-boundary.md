@@ -1,46 +1,71 @@
-# Product Boundary
+# Product boundary: public software, private regulatory data
 
-BCAST exposes a public technical interface around a private regulatory compilation product.
+BCAST follows the software/data ownership model established for Building Code Map. This is the **target architecture**, not a claim that migration is complete.
 
-The durable boundary is:
+> **Open reusable software. Controlled regulatory evidence and production corpus.**
 
-> **Open protocol. Open clients. Open validation. Closed compilation. Proprietary compiled corpus.**
+## Software authority: public `bcast`
 
-## Public surface
+This repository is the sole source of truth for reusable BCAST software and its semantics:
 
-The public repository may contain:
+- provider-neutral publication/object identity, package contracts, schemas, compatibility and normative conformance;
+- reusable, source-independent parsing/normalization primitives and deterministic compilation from a reviewed neutral input representation into BCAST packages;
+- package validation, structural navigation, public client SDKs, CLI, reference server, public application/API behavior and tests;
+- synthetic examples, public-safe test fixtures, and licensed-for-publication source adapters when independently approved;
+- the canonical rules for materialization and content addressing. Private materializers must use these rather than implement an incompatible second compiler.
 
-- public package and API contracts;
-- provider-neutral identity and compatibility rules;
-- client SDKs that consume public interfaces;
-- deterministic conformance validators;
-- synthetic or clearly redistributable fixtures;
-- interoperability documentation and proposals.
+A public software checkout must be testable and useful with synthetic examples and, where rights permit, user-supplied lawful input. It must not need proprietary data, private credentials, or the private repository to pass its ordinary tests.
 
-## Private product
+## Regulatory-data authority: private `bcast-private`
 
-The private product contains:
+The private repository owns acquisition operations and data custody:
 
-- production provider adapters and credentials;
-- licensed or restricted source material;
-- provider-specific normalization and mapping logic;
-- reviewed regulatory data;
-- cross-publisher and cross-edition production relationships;
-- amendment compilation and materialization;
-- private review evidence and acceptance decisions;
-- graph construction and package-materialization services;
-- source-family recovery and production normalization heuristics.
+- live upstream retrieval, authentication, entitlements, source selection, provider-specific mappings/heuristics not cleared for publication;
+- exact source bytes, source-rights decisions, producer records, private evidence, reviewed interpretations and operational audit history;
+- production normalized records, cross-source mappings, corpus indexes, restricted fixtures and private data quality/acceptance decisions;
+- jobs that execute the public compiler against authorized source material, verify source correspondence, retain generation-pinned evidence and produce reviewed distributions;
+- service credentials, storage access, release controls and private operational integration checks.
 
-## Provider neutrality
+Executable producer orchestration may remain private. Its **reusable domain algorithms** should move to public BCAST once reviewed for authorship, licensing and data leakage. Private code must not duplicate canonical package semantics.
 
-A provider representation is never itself a canonical BCAST representation.
+Provider specificity alone is not a reason to close source. An eCFR or other adapter may be open if its implementation is independently releasable and does not disclose restricted data, mappings or access details. Conversely, public source availability does not grant permission to redistribute its compiled inputs or outputs.
 
-Provider IDs, URLs, API object types, document coordinates, and source-specific hierarchy conventions may be retained as provenance or aliases. They must not determine canonical BCAST identity or force downstream consumers to adopt a publisher-specific model.
+## Single authority and dependency direction
 
-BCAST should be able to add or replace lawful upstream providers without unnecessarily changing downstream identity or package semantics.
+```text
+public BCAST contracts + library + deterministic builder
+                  ^ pinned, versioned software dependency
+                  |
+private acquisition + review + authorized source data
+                  |
+                  v
+       reviewed, rights-scoped BCAST packages
+                  |
+                  v
+      public BCAST client / API / application
+```
 
-## Public contract rule
+The public package builder owns package semantics; the private operation decides **which source bytes are authorized, reviewed, retained or published**. Public BCAST consumes ordinary conforming packages, not provider-native payloads. Private implementation pins a public revision and contract coordinate, never vendors another authoritative `spec/` tree.
 
-Only consumer-facing commitments belong in the public contract. Internal ingestion, normalization, review, compilation, confidence, and package-build machinery remain implementation details unless a specific output field must be standardized for consumers.
+Public code must not import private modules. Private operations may depend on pinned public code. No source bytes or restricted corpus enter public Git history, generated Pages content, sample releases, or CI artifacts. Publishing an algorithm never implies publishing source data; compiling data never creates redistribution rights.
 
-Public conformance answers whether an object satisfies a published BCAST contract. It does not certify that a regulatory interpretation is substantively correct.
+A hosted consumer may serve only explicitly authorized packages. A public SDK, schema or API definition is not a promise of unrestricted corpus download, raw source access or bulk enumeration.
+
+## Product boundaries with BCM and Arcata
+
+BCAST represents **what an identified publication contains** and the limits of that representation. Building Code Map determines jurisdictional adoption and project applicability from independent evidence. Arcata performs and verifies engineering calculations. BCAST's `resolved` state is not a BCM `verified` determination, a legal-text certification, or an engineering approval.
+
+## Current implementation and migration
+
+Today the public repository already owns package contracts, identities, validation, consumers, a CLI and a local read-only reference server. It does **not yet** have a reusable neutral-input compiler or full production application.
+
+The private `src/bcast_private/ecfr.py` currently mixes eCFR-specific acquisition/normalization concerns with provider-neutral package assembly. This remains operational during migration; it is not a second long-term software authority. Do not extract it wholesale or copy private Git history to the public repository. Identify the reusable, source-independent logic, review it for safe publication, implement it in the public library, and retain only source-specific adapters and data operations privately.
+
+Required cutover evidence:
+1. Public synthetic compilation produces a conforming 0.2.0 package with stable identities and explicit unsupported/unresolved states, without private dependencies.
+2. Private eCFR producer uses the pinned public builder; replay of the same source produces exactly the accepted package bytes/identity, or a deliberate versioned migration with independent evidence.
+3. Private source-to-output coverage, rights guards, source retention and failure handling remain effective; public repositories and artifacts contain no restricted material.
+4. Both CI lanes exercise the same package and failure cases; a successful private job pins the exact public revision; downstream public consumers remain independent of private provider APIs.
+5. Remove duplicated package construction after equivalence, not before. A production service or real GCS archive is not claimed until separately verified.
+
+See [Architecture](architecture.md) and [Source and rights](source-and-rights.md).

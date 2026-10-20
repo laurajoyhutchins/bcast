@@ -1,70 +1,51 @@
-# Public Architecture
+# BCAST software architecture
 
-BCAST defines versioned, pre-1.0 consumer-facing contracts for regulatory packages. Production compilation and provider access remain separate private implementation responsibilities.
+The intended split mirrors Building Code Map: **one public software authority, one private regulatory-data authority**. The detailed policy and current migration status are in [Product boundary](product-boundary.md).
 
 ```text
-publishers / authorities / lawful providers
-                 |
-                 v
-        +-------------------+
-        | private BCAST     |
-        | compilation      |
-        | (not deployed)   |
-        +-------------------+
-                 |
-                 v
-        +-------------------+
-        | BCAST public     |
-        | package contract |
-        +-------------------+
-            |          |
-            v          v
-       service API   conformance
-            |
-            v
-       client SDKs
-            |
-            v
-      downstream tools
+         upstream publishers / lawful source services
+                            |
+           [private: access, rights, source snapshots]
+                            |
+                 source-specific adapter
+                            |
+               normalized publication input
+                            |
+             [public: canonical BCAST compiler]
+                            |
+        contract-checked, content-addressed package
+                            |
+              +-------------+--------------+
+              |                            |
+      [private: approval,             [public: local
+       retention, distribution]        synthetic tests]
+              |
+   rights-scoped package / service
+              |
+        public client, CLI, API and downstream tools
 ```
 
-## Architectural boundary
+## Ownership and dependency
 
-The public repository begins at the output boundary of the private BCAST compilation service.
+- **Public BCAST** defines the package schema, provider-neutral identity, version compatibility, reusable neutral compilation/validation, navigation and consumer interfaces. It must work with synthetic or otherwise lawful user-supplied input without private modules.
+- **Private BCAST** decides which source to acquire and may use provider-specific mappings, entitlements and review operations. It preserves exact evidence and makes source-specific publication decisions. It depends on a pinned public software revision.
+- **Never two canonical compilers.** The private producer invokes public package assembly rather than reimplementing identity hashing, output validity or graph representation. Data-review policy and compiler correctness are independently testable.
+- **No bulk corpus in public Git or Pages.** A public software distribution does not imply that package outputs or upstream bytes are publicly distributable.
 
-The private side may ingest heterogeneous provider data, normalize source structure, reconcile identities, review semantic relationships, build graphs, and materialize packages. Those activities are not public interfaces and are intentionally not specified here.
+## Existing public contract
 
-The public side defines only what downstream consumers need to rely on:
+The maintained 0.1.0 package/API pair is explicitly separate from the 0.2.0 pair. The human-readable specs are normative; JSON Schemas, OpenAPI, Python client and reference server are companions. The 0.2.0 package identity includes the materialized content, but API metadata alone cannot verify that digest.
 
-1. canonical package semantics;
-2. provider-neutral identifiers;
-3. compatibility and versioning rules;
-4. read-oriented service interfaces;
-5. deterministic contract conformance;
-6. thin client behavior.
+The local reference server serves validated existing packages through read-only GET operations. It is not a deployed production service and does not acquire or certify regulatory sources.
 
-## Package contract
+## Compilation seam
 
-The first maintained package contract is [`bcast.package/0.1.0`](../spec/package-0.1.0.md). It is a deliberately small pre-1.0 consumer contract for package identity, publication identity, regulatory objects, structural parentage, explicit resolution state, public assurance state, optional plain text, and source-safe provenance.
+The public reusable compilation unit accepts a reviewed **provider-neutral input** and returns a package or explicit errors. It owns reproducible serialization, identity, parentage constraints and conformance. The private side translates provider-native data into this input, documents unsupported source constructs, reconciles source correspondence and chooses whether any result may be retained or distributed.
 
-The contract describes consumer-visible output. It does not expose provider acquisition, normalization, review queues, compiler intermediate representations, graph compilation, or package-build machinery.
+Avoid introducing a generic adapter/plugin framework before the bounded eCFR migration demonstrates its need. Preserve the existing 0.2.0 consumer contract unless a real downstream requirement justifies a new version.
 
-## Service API
+## Progress and verification
 
-The maintained [`bcast.api/0.1.0`](../spec/api-0.1.0.md) draft is read-only and declares explicit compatibility with `bcast.package/0.1.0` only. Its four GET operations retrieve package metadata, a full package, an object, and its direct structural children. The public client and local reference server exercise this contract with already-built packages; neither constitutes a deployed production service.
+The public side currently has package consumption and validation but not the complete neutral compilation unit. The private eCFR path presently performs both source-specific normalization and package construction. Migration is pending. Exact-source replay, independent source text/structure audits, error-state fidelity, and public/private conformance must remain true at cutover. Code coverage percentages alone do not establish these properties.
 
-Discovery, amendment traversal, cross-edition relationships, production search, and provider acquisition are not part of this API. Ingestion, normalization, review, and package-build operations remain private implementation concerns.
-
-## Client SDKs
-
-Public SDKs should be thin consumer clients mechanically checked against the maintained contract. The current source-independent Python client reads local packages and can retrieve objects through the draft read-only API. They should not duplicate regulatory interpretation or compilation logic.
-
-## Conformance
-
-Public conformance tooling is deterministic and source-independent. It validates that an object or package satisfies a published contract. It does not reproduce the private compiler or independently establish regulatory correctness.
-
-The current validator is [`conformance/validate.py`](../conformance/validate.py), exercised against project-authored synthetic data.
-
-## Upstream independence
-
-BCAST's public meaning must not depend on any one provider's object model. Adding or replacing an upstream provider should not break downstream contracts unless the public regulatory meaning itself changes.
+BCAST is source representation, not jurisdictional adoption (Building Code Map) and not engineering calculation approval (Arcata).
