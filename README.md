@@ -3,10 +3,10 @@
 BCAST is a provider-neutral representation and interface layer for compiled building-code information.
 
 ```text
-source providers -> private BCAST compilation -> public BCAST contracts -> downstream tools
+source providers -> private lawful acquisition/review -> public BCAST software/compiler -> rights-scoped packages -> downstream tools
 ```
 
-This repository is BCAST's public technical surface. It is **not** the production compiler and does not contain BCAST's proprietary compiled regulatory corpus.
+This repository is the canonical home for reusable BCAST software. Today it has consumer and validation functionality; extraction of reusable compilation from the private producer is still pending. It contains no production regulatory corpus. See [Software/data ownership](docs/product-boundary.md).
 
 ## What BCAST is
 
@@ -16,7 +16,7 @@ Publishers, standards organizations, governments, and other lawful providers rem
 
 ## Data product in the Arcata engineering suite
 
-BCAST is **one data product: Regulatory Publications & Knowledge**. Its public protocol and private compiler/corpus are separate repository roles, not separate products.
+BCAST is **one data product: Regulatory Publications & Knowledge**. Its open reusable software and controlled regulatory data are separate repository roles, not separate products.
 
 Its bounded data responsibilities are:
 
@@ -24,9 +24,9 @@ Its bounded data responsibilities are:
 | --- | --- |
 | **Regulatory publications** | Core deliverable: provider-neutral, versioned publication identities, structured objects and immutable package materializations. Current public package and read-only API contracts are pre-1.0 drafts; the private eCFR compiler covers a limited source slice. |
 | **Regulatory source provenance** | Source-safe citations and optional source-artifact digests in public packages; private acquisition evidence and snapshots stay private. Provenance does not prove legal-text fidelity, authority or durable archival. |
-| **Regulatory relationships** | Future private reconciliation across editions, amendments and publishers. No public relationship traversal or production completeness guarantee exists yet. Introduce consumer-facing relationships only with a concrete, versioned downstream use case. |
+| **Regulatory relationships** | Future public reconciliation semantics applied to separately reviewed private source data across editions, amendments and publishers. No public relationship traversal or production completeness guarantee exists yet. Introduce consumer-facing relationships only with a concrete, versioned downstream use case. |
 
-**Boundaries:** BCAST represents what a source publication contains, not whether it is adopted for a jurisdiction or project (Building Code Map), and not whether an engineering system complies or a calculation is valid (Arcata). Its representation status is not professional or regulatory approval. Consumers use the public contract, never the private compiler or licensed source material.
+**Boundaries:** BCAST represents what a source publication contains, not whether it is adopted for a jurisdiction or project (Building Code Map), and not whether an engineering system complies or a calculation is valid (Arcata). Its representation status is not professional or regulatory approval. Consumers use the public contract and client, never restricted source material or private acquisition infrastructure.
 
 ## What this repository contains
 
@@ -34,7 +34,8 @@ The public surface contains or is intended to contain:
 
 - versioned package and API specifications;
 - stable identity and compatibility rules;
-- thin client SDKs;
+- public client SDKs, CLI, and reference server;
+- reusable neutral-input compilation algorithms as they are safely extracted;
 - deterministic conformance tooling;
 - synthetic or clearly redistributable examples;
 - integration, security, contribution, and rights documentation.
@@ -47,18 +48,20 @@ The human-readable BCAST specification is normative. JSON Schemas, OpenAPI descr
 
 This repository does not contain:
 
-- production provider adapters;
+- source adapters or mappings that are not independently cleared for publication;
 - provider credentials, entitlements, or private responses;
 - licensed or restricted source content;
 - normalized production datasets;
 - BCAST's reviewed regulatory corpus;
 - cross-publisher or cross-edition production mappings;
 - private review evidence;
-- production normalization, graph compilation, or package-materialization logic.
+- live production acquisition orchestration, rights decisions, or restricted-source transformations.
+
+Reusable compilation and package semantics belong in this public repository. The current eCFR implementation has not yet been separated; that migration is explicitly tracked rather than claimed complete.
 
 The durable boundary is:
 
-> **Open protocol. Open clients. Open validation. Closed compilation. Proprietary compiled corpus.**
+> **Open reusable software. Controlled regulatory evidence and production corpus.**
 
 ## License and rights
 

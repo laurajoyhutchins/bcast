@@ -56,6 +56,6 @@ Where this repository intentionally distributes third-party material under an ap
 
 ## Proprietary BCAST material
 
-Apache-2.0 for this repository does not apply to BCAST's proprietary compiled corpus, private compiler implementation, normalization heuristics, private provider mappings or adapters, private review material, production data, or other proprietary material that is not distributed under that license.
+Apache-2.0 for this repository applies to intentionally released BCAST-authored software, including any reusable compilation algorithms subsequently published here. It does not automatically apply to separate private source-specific implementations, restricted normalization mappings, private provider adapters, review material, the proprietary compiled corpus, production data, or other material not distributed under that license. Publishing software never grants redistribution rights in its inputs or generated source-derived corpus.
 
 Use of an Apache-2.0-licensed BCAST schema, client, validator, identifier system, or public specification does not by itself change the license or ownership of separate data, software, services, or compiled products that use or implement that public interface.

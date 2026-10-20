@@ -1,6 +1,6 @@
 # Contributing to BCAST
 
-BCAST's public repository exists to improve interoperability around its public contracts. Contributions should strengthen that surface without importing the private compiler or regulatory corpus into GitHub.
+BCAST's public repository exists to improve interoperability around its public contracts. Contributions may strengthen reusable source-independent software, while never importing private regulatory data, restricted source-derived mappings or private Git history.
 
 ## Appropriate contributions
 
@@ -8,7 +8,8 @@ Contributions may include:
 
 - documentation fixes and clarifications;
 - public schema and API-contract improvements;
-- thin client SDK improvements;
+- client, CLI, API and reference-application improvements;
+- reusable source-independent normalization and package-compilation algorithms;
 - deterministic conformance tooling;
 - synthetic or clearly redistributable fixtures;
 - interoperability proposals;
@@ -21,10 +22,11 @@ Do not submit:
 - licensed or restricted building-code or standards content;
 - bulk publisher-derived data;
 - provider credentials, tokens, entitlements, private responses, or account-specific locators;
-- production provider adapters or provider-to-BCAST mappings;
+- restricted or confidential provider adapters, entitlements or source-to-BCAST mappings;
+- any source-specific implementation that has not been independently cleared for public release;
 - production normalized datasets or reviewed corpus records;
 - private review evidence, acceptance decisions, or reviewer annotations;
-- production normalization or graph-compilation logic;
+- operational regulatory review decisions, private acquisition machinery or production data materialization jobs;
 - unreviewed regulatory interpretations presented as authoritative BCAST output.
 
 See [`docs/source-and-rights.md`](docs/source-and-rights.md) for the source and redistribution policy.
@@ -35,7 +37,7 @@ Before opening a pull request, confirm all of the following:
 
 - [ ] I have the right to publish every example, fixture, and excerpt in this change.
 - [ ] The change contains no credentials, entitlements, private provider data, or account-specific access information.
-- [ ] The change contains no production corpus, production provider mapping, private review evidence, or private compiler logic.
+- [ ] The change contains no production corpus, restricted provider mapping, private review evidence, or private source-acquisition implementation.
 - [ ] Any example is synthetic, public-domain, or accompanied by clear redistribution permission.
 - [ ] I have identified whether the change affects a public contract.
 - [ ] If a public contract changes, I have described the compatibility impact.
@@ -56,4 +58,4 @@ Before 1.0, breaking changes are possible, but they should still be explicit and
 
 ## Review standard
 
-Changes are reviewed for technical correctness, interoperability value, source rights, product-boundary compliance, and compatibility impact. A useful feature may still be rejected from this repository if it belongs in the private compilation product instead.
+Changes are reviewed for technical correctness, interoperability value, source rights, product-boundary compliance, and compatibility impact. A useful feature may still be rejected if it embeds private operational data, restricted source information or entitlement logic. Reusable compiler behavior belongs here after independent rights/privacy review.
