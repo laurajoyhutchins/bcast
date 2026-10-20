@@ -33,3 +33,18 @@ def package_id(publication_id: str, package_version: str) -> str:
         "bcastpkg",
         {"package_version": package_version, "publication_id": publication_id},
     )
+
+
+def publication_id_v2(namespace: str, family: str, edition: str, revision: str | None = None) -> str:
+    """Identity under the issuing authority's stable namespace, never a provider ID."""
+    identity = {"namespace": namespace, "family": family, "edition": edition}
+    if revision is not None:
+        identity["revision"] = revision
+    return stable_id("bcastpub", identity)
+
+
+def materialized_package_id(package: Mapping[str, Any]) -> str:
+    """Address the complete public package, ignoring only object enumeration order."""
+    body = {key: value for key, value in package.items() if key != "package_id"}
+    body["objects"] = sorted(package["objects"], key=lambda item: item["object_id"])
+    return stable_id("bcastpkg", body)

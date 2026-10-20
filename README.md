@@ -25,7 +25,7 @@ The public surface contains or is intended to contain:
 - synthetic or clearly redistributable examples;
 - integration, security, contribution, and rights documentation.
 
-The first maintained package contract is [`bcast.package/0.1.0`](spec/package-0.1.0.md). The first maintained read-only API contract is [`bcast.api/0.1.0`](spec/api-0.1.0.md), explicitly compatible only with `bcast.package/0.1.0`. Both are pre-1.0 drafts exercised by deterministic public conformance checks.
+The original maintained package contract is [`bcast.package/0.1.0`](spec/package-0.1.0.md). The first maintained read-only API contract is [`bcast.api/0.1.0`](spec/api-0.1.0.md), explicitly compatible only with `bcast.package/0.1.0`. Both are pre-1.0 drafts exercised by deterministic public conformance checks. The breaking successor [`bcast.package/0.2.0`](spec/package-0.2.0.md) and matching [`bcast.api/0.2.0`](spec/api-0.2.0.md) address exact materialization IDs, issuer-controlled publication namespaces, and misleading assurance terminology. The original 0.1.0 contract is still supported as a separate, explicitly selected version.
 
 The human-readable BCAST specification is normative. JSON Schemas, OpenAPI descriptions, validators, examples, generated documentation, and client implementations are companion artifacts; if a companion artifact conflicts with the normative specification, the specification wins. See [`spec/README.md`](spec/README.md).
 
@@ -71,6 +71,7 @@ From a checkout:
 ```bash
 python -m pip install -e .
 bcast validate examples/synthetic/valid/package-0.1.0.json
+bcast validate examples/synthetic/valid/package-0.2.0.json
 bcast get examples/synthetic/valid/package-0.1.0.json \
   bcastobj:sha256:55843871042292a117a3363dadcef7f032c8bb9c77bb3eac9098ec7354dd3111
 bcast children examples/synthetic/valid/package-0.1.0.json \
@@ -100,18 +101,30 @@ bcast api http://127.0.0.1:8000 get \
 
 Programmatic consumers can use `BcastApiClient`. Public identity helpers `publication_id`, `regulatory_object_id`, and `package_id` implement the exact deterministic identity inputs standardized by `bcast.package/0.1.0`.
 
+For the breaking 0.2.0 contract, explicitly choose the version rather than silently changing 0.1.0 API semantics:
+
+```bash
+bcast serve examples/synthetic/valid/package-0.2.0.json --package-contract bcast.package/0.2.0 --port 8001
+bcast api http://127.0.0.1:8001 --package-contract bcast.package/0.2.0 metadata <package_id>
+```
+
+Use `BcastApiClient(base_url, package_contract="bcast.package/0.2.0")` for a 0.2.0 deployment. Metadata provides the content-addressed ID, but clients must fetch the full package to verify its digest. The original client and server defaults stay on 0.1.0.
+
 The local reference server is a conformance and integration aid. Its presence does **not** mean that a production BCAST service has been deployed, and it deliberately implements only the four GET operations standardized by `bcast.api/0.1.0`.
 
 ## Validate the public contracts
 
 ```bash
 python -m pip install -r conformance/requirements.txt
-python -m unittest conformance.test_conformance
+python -m unittest conformance.test_conformance conformance.test_package_v2
 python -m conformance.validate_openapi spec/openapi/bcast-api-0.1.0.openapi.json
 python -m unittest discover -s tests
 python conformance/validate.py \
   spec/schemas/package-0.1.0.schema.json \
   examples/synthetic/valid/package-0.1.0.json
+python conformance/validate.py \
+  spec/schemas/package-0.2.0.schema.json \
+  examples/synthetic/valid/package-0.2.0.json
 ```
 
 Validation is deliberately source-independent. It checks the public package contract, deterministic identity/structure invariants, the read-only API contract, and the thin public client without invoking any private compiler or source acquisition path.

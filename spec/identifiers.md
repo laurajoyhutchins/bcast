@@ -16,7 +16,7 @@ Canonical identity distinguishes at least:
 - edition or revision state;
 - the regulatory object represented within that publication state.
 
-The first concrete wire syntax is defined by [`package-0.1.0.md`](package-0.1.0.md).
+The first concrete wire syntax is defined by [`package-0.1.0.md`](package-0.1.0.md). [`package-0.2.0.md`](package-0.2.0.md) adds authority-stewarded DNS namespaces and fully materialization-addressed package identities.
 
 ## 0.1.0 wire syntax
 
@@ -28,7 +28,7 @@ The first concrete wire syntax is defined by [`package-0.1.0.md`](package-0.1.0.
 
 The exact canonical inputs are normative in [`package-0.1.0.md`](package-0.1.0.md).
 
-Identity inputs exclude provider coordinates, source text, source offsets, labels, and storage paths.
+For 0.1.0, package identity reflects a release coordinate. For 0.2.0, publication/object identity continues to exclude provider coordinates, source text, offsets, labels and storage paths, while **package identity incorporates all public content**, including text, labels, structure, status and provenance. Only object enumeration order is canonicalized away.
 
 ## Stability
 

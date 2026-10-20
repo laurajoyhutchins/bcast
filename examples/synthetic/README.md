@@ -10,3 +10,4 @@ The fixture taxonomy is normative only as a conformance test convention, not as 
 The human-readable specification remains authoritative if a fixture or companion validator disagrees with it.
 
 Compatibility fixtures may be added when BCAST has more than one maintained package-contract version.
+`valid/package-0.2.0.json` is a wholly project-authored synthetic demonstration of issuer-namespaced, content-addressed packages without the ambiguous 0.1.0 assurance field.

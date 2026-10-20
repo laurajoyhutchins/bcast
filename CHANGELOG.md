@@ -4,6 +4,12 @@ All notable changes to BCAST's public technical surface will be documented here.
 
 ## Unreleased
 
+### Breaking draft successors
+
+- Introduced `bcast.package/0.2.0` with source-independent, issuer-controlled publication namespaces; exact public-materialization package hashing; and removal of the ambiguous public `assurance` field. This addresses #31, #32 and #35 without modifying the previous 0.1.0 contract.
+- Introduced explicitly compatible `bcast.api/0.2.0` and OpenAPI companions while preserving 0.1.0 consumers and reference server behavior.
+- Added synthetic hash, namespace, status, schema and API regression vectors.
+
 ### Added
 
 - public product positioning and architecture boundary;

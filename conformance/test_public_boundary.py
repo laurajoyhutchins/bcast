@@ -45,7 +45,7 @@ class PublicBoundaryTests(unittest.TestCase):
         self.assertIn("exact Git revision", index["pinning"])
         contracts = index["contracts"]
         self.assertEqual(
-            ["bcast.api/0.1.0", "bcast.package/0.1.0"],
+            ["bcast.api/0.1.0", "bcast.api/0.2.0", "bcast.package/0.1.0", "bcast.package/0.2.0"],
             sorted(item["coordinate"] for item in contracts),
         )
         self.assertEqual(len(contracts), len({item["coordinate"] for item in contracts}))
@@ -57,6 +57,8 @@ class PublicBoundaryTests(unittest.TestCase):
                 self.assertTrue(path.startswith("spec/"))
         api = next(item for item in contracts if item["coordinate"] == "bcast.api/0.1.0")
         self.assertEqual(["bcast.package/0.1.0"], api["compatible_package_contracts"])
+        new_api = next(item for item in contracts if item["coordinate"] == "bcast.api/0.2.0")
+        self.assertEqual(["bcast.package/0.2.0"], new_api["compatible_package_contracts"])
 
 
 if __name__ == "__main__":
