@@ -25,17 +25,19 @@ It does **not** specify private ingestion, provider adaptation, source normaliza
 
 BCAST is pre-1.0. Its maintained contracts are drafts and may change according to [`compatibility.md`](compatibility.md).
 
-Maintained package contract:
+Maintained package contracts:
 
 - [`package-0.1.0.md`](package-0.1.0.md) — normative semantic contract and deterministic identity rules;
-- [`schemas/package-0.1.0.schema.json`](schemas/package-0.1.0.schema.json) — companion JSON Schema for `bcast.package/0.1.0`.
+- [`schemas/package-0.1.0.schema.json`](schemas/package-0.1.0.schema.json) — companion schema for the legacy draft;
+- [`package-0.2.0.md`](package-0.2.0.md) and [`schemas/package-0.2.0.schema.json`](schemas/package-0.2.0.schema.json) — namespaced, materialization-addressed successor with no unsupported assurance field.
 
 Maintained read-only API contract:
 
 - [`api-0.1.0.md`](api-0.1.0.md) — normative retrieval, compatibility, navigation, and error semantics for `bcast.api/0.1.0`;
-- [`openapi/bcast-api-0.1.0.openapi.json`](openapi/bcast-api-0.1.0.openapi.json) — companion OpenAPI 3.2 description.
+- [`openapi/bcast-api-0.1.0.openapi.json`](openapi/bcast-api-0.1.0.openapi.json) — companion OpenAPI 3.2 description;
+- [`api-0.2.0.md`](api-0.2.0.md) and [`openapi/bcast-api-0.2.0.openapi.json`](openapi/bcast-api-0.2.0.openapi.json) — version-specific retrieval of 0.2.0 packages.
 
-`bcast.api/0.1.0` is explicitly compatible only with `bcast.package/0.1.0`. No production BCAST service deployment or deployment URL is standardized by these files.
+`bcast.api/0.1.0` is explicitly compatible only with `bcast.package/0.1.0`; `bcast.api/0.2.0` only with `bcast.package/0.2.0`. No production BCAST service deployment or deployment URL is standardized by these files.
 
 BCAST does not currently define or claim an IANA-registered BCAST-specific media type. Media-type registration is a separate interoperability decision and any future declaration must distinguish registered from unregistered types accurately.
 

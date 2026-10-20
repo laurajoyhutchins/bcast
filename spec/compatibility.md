@@ -31,9 +31,10 @@ The first declared relation is exact:
 
 ```text
 bcast.api/0.1.0 -> bcast.package/0.1.0
+bcast.api/0.2.0 -> bcast.package/0.2.0
 ```
 
-`bcast.api/0.1.0` does not imply compatibility with any other package contract. A conforming API implementation must return its documented `incompatible_version` error rather than reinterpret a package under an undeclared contract.
+`bcast.api/0.1.0` does not imply compatibility with any other package contract. Similarly, `bcast.api/0.2.0` supports exactly `bcast.package/0.2.0` and rejects 0.1.0. Each deployment or explicit client configuration selects the intended version; adjacent version numbers never imply compatibility. A conforming API implementation must return its documented `incompatible_version` error rather than reinterpret a package under an undeclared contract.
 
 Package and API contracts evolve independently. Adding, removing, or changing a declared compatibility relation is itself a normative contract change and must be versioned rather than silently changing an existing coordinate.
 
