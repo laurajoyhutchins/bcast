@@ -48,7 +48,7 @@ class V2PackageConformance(unittest.TestCase):
     def test_changed_content_structure_provenance_or_status_invalidates_id(self):
         changes = [
             lambda p: p["objects"][1]["content"].update(text="Changed regulatory text"),
-            lambda p: p["objects"][1].update(parent_id=None),
+            lambda p: p["objects"][1].pop("parent_id"),
             lambda p: p["objects"][1]["provenance"].update(citation="Changed citation"),
             lambda p: p["objects"][1].update(status="unresolved"),
             lambda p: p["publication"].update(title="Changed title"),
