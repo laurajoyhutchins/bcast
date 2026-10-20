@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from bcast import BcastPackage, ObjectNotFoundError, PackageValidationError, validate_package
 from bcast.cli import main as cli_main
@@ -39,6 +40,33 @@ class ClientTests(unittest.TestCase):
         package_schema = BcastPackage.schema()
         maintained_schema = json.loads(SPEC_SCHEMA.read_text(encoding="utf-8"))
         self.assertEqual(maintained_schema, package_schema)
+
+    def test_direct_constructor_rejects_invalid_schema_and_semantics(self):
+        missing_field = self.load_fixture()
+        del missing_field["objects"][0]["status"]
+        with self.assertRaisesRegex(PackageValidationError, "status"):
+            BcastPackage(missing_field)
+
+        missing_parent = self.load_fixture()
+        missing_parent["objects"][1]["parent_id"] = f"bcastobj:sha256:{'f' * 64}"
+        with self.assertRaisesRegex(PackageValidationError, "missing parent object"):
+            BcastPackage(missing_parent)
+
+    def test_validated_constructor_and_from_mapping_copy_input(self):
+        candidate = self.load_fixture()
+        direct = BcastPackage(candidate)
+        mapped = BcastPackage.from_mapping(candidate)
+        candidate["objects"][0]["status"] = "unsupported"
+        self.assertEqual("resolved", direct.as_dict()["objects"][0]["status"])
+        self.assertEqual(direct.as_dict(), mapped.as_dict())
+
+    def test_file_and_mapping_load_paths_validate_once(self):
+        with patch("bcast.package.validate_package", wraps=validate_package) as validation:
+            BcastPackage.from_mapping(self.load_fixture())
+            self.assertEqual(1, validation.call_count)
+        with patch("bcast.package.validate_package", wraps=validate_package) as validation:
+            BcastPackage.load(VALID)
+            self.assertEqual(1, validation.call_count)
 
     def test_wrong_identity_is_rejected(self):
         candidate = self.load_fixture()

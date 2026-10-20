@@ -5,7 +5,7 @@ import io
 import threading
 import unittest
 
-from bcast import BcastApiClient, BcastApiProblem, BcastPackage, package_id, publication_id, regulatory_object_id
+from bcast import BcastApiClient, BcastApiProblem, BcastPackage, PackageValidationError, package_id, publication_id, regulatory_object_id
 from bcast.cli import main as cli_main
 from bcast.server import make_server
 
@@ -90,6 +90,18 @@ class ApiClientServerTests(unittest.TestCase):
 
         unresolved = package.as_dict()["objects"][1]["object_id"]
         self.assertEqual("unresolved", client.get_object(package.package_id, unresolved)["status"])
+
+    def test_reference_server_cannot_accept_unvalidated_package(self):
+        valid = self.make_package().as_dict()
+        valid["objects"][0]["status"] = "not-a-public-state"
+        with self.assertRaises(PackageValidationError):
+            # Construction must fail before the package can enter make_server.
+            make_server([BcastPackage(valid)], host="127.0.0.1", port=0)
+
+        valid = self.make_package().as_dict()
+        valid["objects"][1]["parent_id"] = f"bcastobj:sha256:{'f' * 64}"
+        with self.assertRaisesRegex(PackageValidationError, "missing parent object"):
+            make_server([BcastPackage(valid)], host="127.0.0.1", port=0)
 
     def test_not_found_is_structured_problem(self):
         package, base_url = self.run_server()
