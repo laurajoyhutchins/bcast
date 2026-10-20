@@ -97,6 +97,8 @@ class ApiClientServerTests(unittest.TestCase):
             {**valid, "package_id": f"bcastpkg:sha256:{'f' * 64}"},
             {**valid, "private_compiler_state": "not public"},
             {**valid, "publication": {**valid["publication"], "provider_key": "private"}},
+            {**valid, "publication": {**valid["publication"], "edition": "2030"}},
+            {**valid, "package_version": "2030.other"},
             {**valid, "schema_version": "bcast.package/unknown"},
             ["not", "metadata"],
         ]

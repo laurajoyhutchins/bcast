@@ -8,6 +8,7 @@ from urllib.request import Request, urlopen
 
 from jsonschema import Draft202012Validator
 
+from .identifiers import package_id as canonical_package_id, publication_id
 from .validation import PackageValidationError, load_schema, validate_package
 
 
@@ -107,6 +108,14 @@ class BcastApiClient:
         _require_public_shape(value, _metadata_schema(), "package metadata response")
         if value["package_id"] != package_id:
             raise BcastApiProtocolError("package metadata response identity differs from requested package")
+        publication = value["publication"]
+        expected_publication_id = publication_id(
+            publication["family"], publication["edition"], publication.get("revision")
+        )
+        if publication["publication_id"] != expected_publication_id:
+            raise BcastApiProtocolError("package metadata response has inconsistent publication identity")
+        if value["package_id"] != canonical_package_id(publication["publication_id"], value["package_version"]):
+            raise BcastApiProtocolError("package metadata response has inconsistent package identity")
         return value
 
     def get_package(self, package_id: str) -> dict[str, Any]:
