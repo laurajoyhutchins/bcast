@@ -6,6 +6,7 @@ from jsonschema import Draft202012Validator
 
 from bcast.validation import PackageValidationError, load_schema, validate_package
 from conformance.validate import load_json
+from conformance.validate_openapi import validate_openapi_document
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -62,6 +63,31 @@ class PackageConformanceTests(unittest.TestCase):
 class ApiContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.api = load_json(API_PATH)
+
+    def test_openapi_32_companion_validates_and_resolves_every_reference(self) -> None:
+        validate_openapi_document(self.api, API_PATH)
+
+    def test_invalid_openapi_structure_is_rejected(self) -> None:
+        document = deepcopy(self.api)
+        del document["info"]
+        with self.assertRaises(Exception):
+            validate_openapi_document(document, API_PATH)
+
+    def test_broken_external_schema_reference_is_rejected(self) -> None:
+        document = deepcopy(self.api)
+        document["paths"]["/packages/{package_id}"]["get"]["responses"]["200"][
+            "content"
+        ]["application/json"]["schema"]["$ref"] = "../schemas/does-not-exist.json"
+        with self.assertRaisesRegex(ValueError, "missing or out-of-tree reference target"):
+            validate_openapi_document(document, API_PATH)
+
+    def test_out_of_tree_reference_is_rejected(self) -> None:
+        document = deepcopy(self.api)
+        document["components"]["schemas"]["PackageMetadata"]["properties"][
+            "publication"
+        ]["$ref"] = "../../../README.md"
+        with self.assertRaisesRegex(ValueError, "missing or out-of-tree reference target"):
+            validate_openapi_document(document, API_PATH)
 
     def test_api_contract_is_versioned_and_read_only(self) -> None:
         self.assertEqual("3.2.0", self.api["openapi"])

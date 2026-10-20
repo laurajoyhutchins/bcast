@@ -107,6 +107,7 @@ The local reference server is a conformance and integration aid. Its presence do
 ```bash
 python -m pip install -r conformance/requirements.txt
 python -m unittest conformance.test_conformance
+python -m conformance.validate_openapi spec/openapi/bcast-api-0.1.0.openapi.json
 python -m unittest discover -s tests
 python conformance/validate.py \
   spec/schemas/package-0.1.0.schema.json \
