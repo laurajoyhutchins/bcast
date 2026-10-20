@@ -1,4 +1,5 @@
 from copy import deepcopy
+from pathlib import Path
 import unittest
 
 from jsonschema import Draft202012Validator
