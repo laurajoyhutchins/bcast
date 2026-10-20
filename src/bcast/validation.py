@@ -74,19 +74,24 @@ def _semantic_errors(package: Mapping[str, Any]) -> list[str]:
         elif parent_id not in by_id:
             failures.append(f"missing parent object: {parent_id}")
 
-    for item in package["objects"]:
-        seen: set[str] = set()
-        cursor = item
-        while "parent_id" in cursor:
-            parent_id = cursor["parent_id"]
-            if parent_id in seen:
-                failures.append(f"structural parent cycle reaches {parent_id}")
+    # Walk each parent chain once. The previous per-object traversal was
+    # quadratic for deep publications, even when every parent was valid.
+    visited: set[str] = set()
+    for start in by_id:
+        if start in visited:
+            continue
+        chain: set[str] = set()
+        cursor: str | None = start
+        while cursor is not None and cursor in by_id and cursor not in visited:
+            if cursor in chain:
+                failures.append(f"structural parent cycle reaches {cursor}")
                 break
-            seen.add(parent_id)
-            parent = by_id.get(parent_id)
-            if parent is None:
-                break
-            cursor = parent
+            chain.add(cursor)
+            parent_id = by_id[cursor].get("parent_id")
+            if parent_id == cursor:
+                break  # Already reported as an immediate self-parent.
+            cursor = parent_id
+        visited.update(chain)
     return failures
 
 
