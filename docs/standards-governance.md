@@ -2,7 +2,7 @@
 
 This document governs the public BCAST standard: its normative contracts, compatibility commitments, release snapshots, citation metadata, errata, deprecation, and withdrawal.
 
-It does not govern BCAST's private compiler, provider integrations, source acquisition, review operations, production data, or proprietary compiled corpus. Those remain product implementation decisions outside the public standards process.
+It governs **public normative contract commitments**, not the internal architecture of reusable public software or the private regulatory-data pipeline. Source acquisition, provider entitlements, review operations, production data, and proprietary corpus rights remain operational decisions outside the standards process.
 
 ## Decision authority
 
@@ -34,7 +34,7 @@ A contract below `1.0.0` is maintained but not stable. Breaking changes are perm
 
 ### Stable
 
-A contract at `1.0.0` or later is stable and carries the compatibility promises in [`../spec/compatibility.md`](../spec/compatibility.md). A stability claim applies to the public contract, not to private compiler or corpus maturity.
+A contract at `1.0.0` or later is stable and carries the compatibility promises in [`../spec/compatibility.md`](../spec/compatibility.md). A stability claim applies to the public contract, not to compiler implementation maturity, production service availability or corpus coverage.
 
 ### Deprecated
 
@@ -95,6 +95,6 @@ BCAST does not currently claim a DOI or registration by an external standards bo
 
 ## Relationship to private product decisions
 
-Public standards governance controls what BCAST promises to consumers. It does not expose or transfer decision authority over private source providers, compiler architecture, normalization heuristics, review evidence, production operations, or the proprietary compiled corpus.
+Public standards governance controls normative consumer-visible meaning. The public software repository separately owns reusable implementation algorithms, while the private regulatory-data repository controls confidential source mappings, acquisition, review evidence, operational release decisions and the protected corpus.
 
 A private implementation change requires a public standards change only when it changes the consumer-facing meaning or behavior promised by a public BCAST contract.
