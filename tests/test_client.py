@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from bcast import BcastPackage, ObjectNotFoundError, PackageValidationError, validate_package
 from bcast.cli import main as cli_main
@@ -58,6 +59,14 @@ class ClientTests(unittest.TestCase):
         candidate["objects"][0]["status"] = "unsupported"
         self.assertEqual("resolved", direct.as_dict()["objects"][0]["status"])
         self.assertEqual(direct.as_dict(), mapped.as_dict())
+
+    def test_file_and_mapping_load_paths_validate_once(self):
+        with patch("bcast.package.validate_package", wraps=validate_package) as validation:
+            BcastPackage.from_mapping(self.load_fixture())
+            self.assertEqual(1, validation.call_count)
+        with patch("bcast.package.validate_package", wraps=validate_package) as validation:
+            BcastPackage.load(VALID)
+            self.assertEqual(1, validation.call_count)
 
     def test_wrong_identity_is_rejected(self):
         candidate = self.load_fixture()
