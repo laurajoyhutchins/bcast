@@ -21,6 +21,25 @@
       "compatible_package_contracts": [
         "bcast.package/0.1.0"
       ]
+    },
+    {
+      "coordinate": "bcast.package/0.2.0",
+      "status": "draft",
+      "normative_path": "spec/package-0.2.0.md",
+      "companions": [
+        "spec/schemas/package-0.2.0.schema.json"
+      ]
+    },
+    {
+      "coordinate": "bcast.api/0.2.0",
+      "status": "draft",
+      "normative_path": "spec/api-0.2.0.md",
+      "companions": [
+        "spec/openapi/bcast-api-0.2.0.openapi.json"
+      ],
+      "compatible_package_contracts": [
+        "bcast.package/0.2.0"
+      ]
     }
   ]
 }
