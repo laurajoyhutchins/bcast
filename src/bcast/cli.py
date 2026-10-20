@@ -8,7 +8,7 @@ from typing import Sequence
 from .api import BcastApiClient, BcastApiError
 from .package import BcastPackage, ObjectCoordinateNotFoundError, ObjectNotFoundError
 from .server import serve_paths
-from .validation import PackageValidationError
+from .validation import PACKAGE_CONTRACTS, PackageValidationError
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -33,9 +33,11 @@ def _parser() -> argparse.ArgumentParser:
     serve.add_argument("packages", nargs="+")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
+    serve.add_argument("--package-contract", choices=PACKAGE_CONTRACTS, default=PACKAGE_CONTRACTS[0])
 
     api = subparsers.add_parser("api", help="Call a bcast.api/0.1.0 endpoint")
     api.add_argument("base_url")
+    api.add_argument("--package-contract", choices=PACKAGE_CONTRACTS, default=PACKAGE_CONTRACTS[0])
     api_subparsers = api.add_subparsers(dest="api_command", required=True)
 
     metadata = api_subparsers.add_parser("metadata", help="Retrieve package metadata")
@@ -76,10 +78,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         if args.command == "serve":
-            serve_paths(args.packages, host=args.host, port=args.port)
+            serve_paths(args.packages, host=args.host, port=args.port, package_contract=args.package_contract)
             return 0
         if args.command == "api":
-            client = BcastApiClient(args.base_url)
+            client = BcastApiClient(args.base_url, package_contract=args.package_contract)
             if args.api_command == "metadata":
                 _print_json(client.get_package_metadata(args.package_id))
             elif args.api_command == "package":

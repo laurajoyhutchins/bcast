@@ -8,8 +8,8 @@ from urllib.request import Request, urlopen
 
 from jsonschema import Draft202012Validator
 
-from .identifiers import package_id as canonical_package_id, publication_id
-from .validation import PackageValidationError, load_schema, validate_package
+from .identifiers import package_id as canonical_package_id, publication_id, publication_id_v2
+from .validation import PACKAGE_CONTRACTS, PackageValidationError, load_schema, validate_package
 
 
 PROBLEM_HTTP_STATUS = {
@@ -46,8 +46,8 @@ def _require_public_shape(value: Any, schema: dict[str, Any], label: str) -> Non
         raise BcastApiProtocolError(f"{label} violates the public BCAST contract")
 
 
-def _metadata_schema() -> dict[str, Any]:
-    package_properties = load_schema()["properties"]
+def _metadata_schema(version: str) -> dict[str, Any]:
+    package_properties = load_schema(version)["properties"]
     fields = ("schema_version", "package_id", "package_version", "publication")
     return {
         "type": "object",
@@ -57,17 +57,20 @@ def _metadata_schema() -> dict[str, Any]:
     }
 
 
-def _object_schema() -> dict[str, Any]:
-    return load_schema()["properties"]["objects"]["items"]
+def _object_schema(version: str) -> dict[str, Any]:
+    return load_schema(version)["properties"]["objects"]["items"]
 
 
 class BcastApiClient:
-    def __init__(self, base_url: str, *, timeout: float = 10.0):
+    def __init__(self, base_url: str, *, timeout: float = 10.0, package_contract: str = "bcast.package/0.1.0"):
         base = base_url.strip().rstrip("/")
         if not base:
             raise ValueError("base_url must not be empty")
+        if package_contract not in PACKAGE_CONTRACTS:
+            raise ValueError(f"unsupported package contract: {package_contract}")
         self.base_url = base
         self.timeout = timeout
+        self.package_contract = package_contract
 
     @staticmethod
     def _segment(value: str) -> str:
@@ -105,17 +108,28 @@ class BcastApiClient:
 
     def get_package_metadata(self, package_id: str) -> dict[str, Any]:
         value = self._get_json(f"/packages/{self._segment(package_id)}/metadata")
-        _require_public_shape(value, _metadata_schema(), "package metadata response")
+        _require_public_shape(value, _metadata_schema(self.package_contract), "package metadata response")
+        if value["schema_version"] != self.package_contract:
+            raise BcastApiProtocolError("package metadata response uses incompatible contract version")
         if value["package_id"] != package_id:
             raise BcastApiProtocolError("package metadata response identity differs from requested package")
         publication = value["publication"]
-        expected_publication_id = publication_id(
-            publication["family"], publication["edition"], publication.get("revision")
-        )
+        if self.package_contract == "bcast.package/0.2.0":
+            expected_publication_id = publication_id_v2(
+                publication["namespace"], publication["family"],
+                publication["edition"], publication.get("revision"),
+            )
+        else:
+            expected_publication_id = publication_id(
+                publication["family"], publication["edition"], publication.get("revision")
+            )
         if publication["publication_id"] != expected_publication_id:
             raise BcastApiProtocolError("package metadata response has inconsistent publication identity")
-        if value["package_id"] != canonical_package_id(publication["publication_id"], value["package_version"]):
-            raise BcastApiProtocolError("package metadata response has inconsistent package identity")
+        # A 0.2.0 package ID hashes the full body. Metadata alone cannot
+        # prove it, so never claim the digest was verified from this projection.
+        if self.package_contract == "bcast.package/0.1.0":
+            if value["package_id"] != canonical_package_id(publication["publication_id"], value["package_version"]):
+                raise BcastApiProtocolError("package metadata response has inconsistent package identity")
         return value
 
     def get_package(self, package_id: str) -> dict[str, Any]:
@@ -124,6 +138,8 @@ class BcastApiClient:
             validate_package(value)
         except PackageValidationError as exc:
             raise BcastApiProtocolError("package response violates the public BCAST contract") from exc
+        if value["schema_version"] != self.package_contract:
+            raise BcastApiProtocolError("package response uses incompatible contract version")
         if value["package_id"] != package_id:
             raise BcastApiProtocolError("package response identity differs from requested package")
         return value
@@ -132,7 +148,7 @@ class BcastApiClient:
         value = self._get_json(
             f"/packages/{self._segment(package_id)}/objects/{self._segment(object_id)}"
         )
-        _require_public_shape(value, _object_schema(), "object response")
+        _require_public_shape(value, _object_schema(self.package_contract), "object response")
         if value["object_id"] != object_id:
             raise BcastApiProtocolError("object response identity differs from requested object")
         return value
@@ -143,7 +159,7 @@ class BcastApiClient:
         )
         if not isinstance(value, list):
             raise BcastApiProtocolError("children response must be an array of objects")
-        child_schema = _object_schema()
+        child_schema = _object_schema(self.package_contract)
         ids: list[str] = []
         for child in value:
             _require_public_shape(child, child_schema, "child response")

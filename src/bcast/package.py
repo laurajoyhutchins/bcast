@@ -50,8 +50,8 @@ class BcastPackage:
         return cls(value)
 
     @classmethod
-    def schema(cls) -> dict[str, Any]:
-        return deepcopy(load_schema())
+    def schema(cls, version: str = "bcast.package/0.1.0") -> dict[str, Any]:
+        return deepcopy(load_schema(version))
 
     @property
     def schema_version(self) -> str:

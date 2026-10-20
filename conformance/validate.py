@@ -32,15 +32,23 @@ def main() -> int:
         print(f"ERROR {args.schema}: {exc}", file=sys.stderr)
         return 1
 
-    # The installed client and checked-in normative companion must not drift.
-    if supplied_schema != load_schema():
+    version = supplied_schema.get("properties", {}).get("schema_version", {}).get("const")
+    try:
+        packaged_schema = load_schema(version)
+    except ValueError as exc:
+        print(f"ERROR {args.schema}: {exc}", file=sys.stderr)
+        return 1
+    if supplied_schema != packaged_schema:
         print(f"ERROR {args.schema}: schema differs from the packaged client schema", file=sys.stderr)
         return 1
 
     failed = False
     for path in args.packages:
         try:
-            validate_package(load_json(path))
+            value = load_json(path)
+            validate_package(value)
+            if value["schema_version"] != version:
+                raise PackageValidationError(["package contract differs from supplied schema"])
         except (OSError, json.JSONDecodeError, PackageValidationError) as exc:
             failed = True
             print(f"ERROR {path}: {exc}", file=sys.stderr)

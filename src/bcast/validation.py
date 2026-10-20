@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from importlib import resources
 from typing import Any, Mapping
 
 from jsonschema import Draft202012Validator
 
-from .identifiers import package_id, publication_id, regulatory_object_id
+from .identifiers import materialized_package_id, package_id, publication_id, publication_id_v2, regulatory_object_id
 
 
 class PackageValidationError(ValueError):
@@ -15,13 +16,18 @@ class PackageValidationError(ValueError):
         super().__init__("; ".join(errors))
 
 
-def load_schema() -> dict[str, Any]:
-    text = resources.files("bcast").joinpath("schemas/package-0.1.0.schema.json").read_text(encoding="utf-8")
-    return json.loads(text)
+PACKAGE_CONTRACTS = ("bcast.package/0.1.0", "bcast.package/0.2.0")
 
 
-def _schema_errors(package: Any) -> list[str]:
-    validator = Draft202012Validator(load_schema())
+def load_schema(version: str = "bcast.package/0.1.0") -> dict[str, Any]:
+    if version not in PACKAGE_CONTRACTS:
+        raise ValueError(f"unsupported BCAST package contract: {version}")
+    filename = f"schemas/package-{version.removeprefix('bcast.package/')}.schema.json"
+    return json.loads(resources.files("bcast").joinpath(filename).read_text(encoding="utf-8"))
+
+
+def _schema_errors(package: Any, version: str) -> list[str]:
+    validator = Draft202012Validator(load_schema(version))
     errors = []
     for failure in sorted(validator.iter_errors(package), key=lambda item: list(item.absolute_path)):
         location = ".".join(str(part) for part in failure.absolute_path) or "<root>"
@@ -32,15 +38,28 @@ def _schema_errors(package: Any) -> list[str]:
 def _semantic_errors(package: Mapping[str, Any]) -> list[str]:
     failures: list[str] = []
     publication = package["publication"]
-    expected_publication_id = publication_id(
-        publication["family"],
-        publication["edition"],
-        publication.get("revision"),
-    )
+    version = package["schema_version"]
+    if version == "bcast.package/0.2.0":
+        expected_publication_id = publication_id_v2(
+            publication["namespace"], publication["family"], publication["edition"],
+            publication.get("revision"),
+        )
+        for field in ("edition", "revision"):
+            value = publication.get(field)
+            if value is not None and (value != value.strip() or unicodedata.normalize("NFC", value) != value):
+                failures.append(f"publication.{field} must be trimmed NFC Unicode")
+    else:
+        expected_publication_id = publication_id(
+            publication["family"], publication["edition"], publication.get("revision")
+        )
     if publication["publication_id"] != expected_publication_id:
         failures.append("publication_id does not match canonical provider-neutral identity")
 
-    expected_package_id = package_id(publication["publication_id"], package["package_version"])
+    expected_package_id = (
+        materialized_package_id(package)
+        if version == "bcast.package/0.2.0"
+        else package_id(publication["publication_id"], package["package_version"])
+    )
     if package["package_id"] != expected_package_id:
         failures.append("package_id does not match canonical package identity")
 
@@ -96,7 +115,10 @@ def _semantic_errors(package: Mapping[str, Any]) -> list[str]:
 
 
 def validate_package(package: Any) -> None:
-    failures = _schema_errors(package)
+    version = package.get("schema_version") if isinstance(package, Mapping) else None
+    if version not in PACKAGE_CONTRACTS:
+        raise PackageValidationError([f"unsupported BCAST schema_version: {version!r}"])
+    failures = _schema_errors(package, version)
     if not failures:
         failures.extend(_semantic_errors(package))
     if failures:

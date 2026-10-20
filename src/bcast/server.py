@@ -7,6 +7,7 @@ from typing import Iterable
 from urllib.parse import unquote, urlsplit
 
 from .package import BcastPackage, ObjectNotFoundError
+from .validation import PACKAGE_CONTRACTS
 
 
 class BcastPackageStore:
@@ -28,7 +29,7 @@ class BcastPackageStore:
             raise KeyError(package_id) from exc
 
 
-def _handler_for(store: BcastPackageStore):
+def _handler_for(store: BcastPackageStore, package_contract: str):
     class Handler(BaseHTTPRequestHandler):
         server_version = "BCASTReference/0.1"
 
@@ -63,6 +64,9 @@ def _handler_for(store: BcastPackageStore):
             except KeyError:
                 self._problem(404, "not_found", "BCAST package not found", package_id)
                 return
+            if package.schema_version != package_contract:
+                self._problem(409, "incompatible_version", "BCAST package contract is incompatible", package_id)
+                return
 
             if len(segments) == 2:
                 self._json(200, package.as_dict())
@@ -92,14 +96,20 @@ def make_server(
     *,
     host: str = "127.0.0.1",
     port: int = 8000,
+    package_contract: str = "bcast.package/0.1.0",
 ) -> ThreadingHTTPServer:
+    if package_contract not in PACKAGE_CONTRACTS:
+        raise ValueError(f"unsupported package contract: {package_contract}")
     store = packages if isinstance(packages, BcastPackageStore) else BcastPackageStore(packages)
-    return ThreadingHTTPServer((host, port), _handler_for(store))
+    return ThreadingHTTPServer((host, port), _handler_for(store, package_contract))
 
 
-def serve_paths(paths: Iterable[str | Path], *, host: str = "127.0.0.1", port: int = 8000) -> None:
+def serve_paths(
+    paths: Iterable[str | Path], *, host: str = "127.0.0.1", port: int = 8000,
+    package_contract: str = "bcast.package/0.1.0",
+) -> None:
     store = BcastPackageStore.from_paths(paths)
-    server = make_server(store, host=host, port=port)
+    server = make_server(store, host=host, port=port, package_contract=package_contract)
     try:
         server.serve_forever()
     finally:
