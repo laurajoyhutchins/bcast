@@ -14,6 +14,20 @@ BCAST turns heterogeneous building-code and standards inputs into coherent, vers
 
 Publishers, standards organizations, governments, and other lawful providers remain authoritative for their source publications. BCAST's public model is provider-neutral: provider IDs, URLs, API object types, and source-specific hierarchy conventions are inputs and provenance, not canonical downstream identity.
 
+## Data product in the Arcata engineering suite
+
+BCAST is **one data product: Regulatory Publications & Knowledge**. Its public protocol and private compiler/corpus are separate repository roles, not separate products.
+
+Its bounded data responsibilities are:
+
+| Dataset or capability | Ownership and maturity |
+| --- | --- |
+| **Regulatory publications** | Core deliverable: provider-neutral, versioned publication identities, structured objects and immutable package materializations. Current public package and read-only API contracts are pre-1.0 drafts; the private eCFR compiler covers a limited source slice. |
+| **Regulatory source provenance** | Source-safe citations and optional source-artifact digests in public packages; private acquisition evidence and snapshots stay private. Provenance does not prove legal-text fidelity, authority or durable archival. |
+| **Regulatory relationships** | Future private reconciliation across editions, amendments and publishers. No public relationship traversal or production completeness guarantee exists yet. Introduce consumer-facing relationships only with a concrete, versioned downstream use case. |
+
+**Boundaries:** BCAST represents what a source publication contains, not whether it is adopted for a jurisdiction or project (Building Code Map), and not whether an engineering system complies or a calculation is valid (Arcata). Its representation status is not professional or regulatory approval. Consumers use the public contract, never the private compiler or licensed source material.
+
 ## What this repository contains
 
 The public surface contains or is intended to contain:
