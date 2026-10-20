@@ -40,6 +40,25 @@ class ClientTests(unittest.TestCase):
         maintained_schema = json.loads(SPEC_SCHEMA.read_text(encoding="utf-8"))
         self.assertEqual(maintained_schema, package_schema)
 
+    def test_direct_constructor_rejects_invalid_schema_and_semantics(self):
+        missing_field = self.load_fixture()
+        del missing_field["objects"][0]["status"]
+        with self.assertRaisesRegex(PackageValidationError, "status"):
+            BcastPackage(missing_field)
+
+        missing_parent = self.load_fixture()
+        missing_parent["objects"][1]["parent_id"] = f"bcastobj:sha256:{'f' * 64}"
+        with self.assertRaisesRegex(PackageValidationError, "missing parent object"):
+            BcastPackage(missing_parent)
+
+    def test_validated_constructor_and_from_mapping_copy_input(self):
+        candidate = self.load_fixture()
+        direct = BcastPackage(candidate)
+        mapped = BcastPackage.from_mapping(candidate)
+        candidate["objects"][0]["status"] = "unsupported"
+        self.assertEqual("resolved", direct.as_dict()["objects"][0]["status"])
+        self.assertEqual(direct.as_dict(), mapped.as_dict())
+
     def test_wrong_identity_is_rejected(self):
         candidate = self.load_fixture()
         candidate["package_id"] = f"bcastpkg:sha256:{'0' * 64}"
