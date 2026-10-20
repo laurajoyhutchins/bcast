@@ -7,7 +7,7 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from bcast import BcastApiClient, BcastApiProblem, BcastApiProtocolError, BcastPackage, PackageValidationError, package_id, publication_id, regulatory_object_id
+from bcast import BcastApiClient, BcastApiProblem, BcastApiProtocolError, BcastPackage, PackageValidationError, materialized_package_id, package_id, publication_id, regulatory_object_id
 from bcast.cli import main as cli_main
 from bcast.server import make_server
 
@@ -219,6 +219,47 @@ class ApiClientServerTests(unittest.TestCase):
             rc = cli_main(["api", base_url, "metadata", package.package_id])
         self.assertEqual(0, rc)
         self.assertIn(package.package_id, out.getvalue())
+
+
+    def test_v2_reference_server_round_trip_and_contract_rejection(self):
+        from pathlib import Path
+        fixture = Path(__file__).resolve().parents[1] / "examples/synthetic/valid/package-0.2.0.json"
+        v2 = BcastPackage.load(fixture)
+        old = self.make_package()
+        server = make_server([v2, old], host="127.0.0.1", port=0, package_contract="bcast.package/0.2.0")
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(thread.join, 2)
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        url = f"http://127.0.0.1:{server.server_port}"
+        client = BcastApiClient(url, package_contract="bcast.package/0.2.0")
+        metadata = client.get_package_metadata(v2.package_id)
+        self.assertEqual(v2.package_id, metadata["package_id"])
+        self.assertEqual(v2.as_dict(), client.get_package(v2.package_id))
+        root = v2.roots()[0]["object_id"]
+        self.assertEqual(len(v2.children(root)), len(client.get_children(v2.package_id, root)))
+        with self.assertRaises(BcastApiProblem) as captured:
+            client.get_package(old.package_id)
+        self.assertEqual("incompatible_version", captured.exception.code)
+        with self.assertRaises(BcastApiProtocolError):
+            BcastApiClient(url).get_package(v2.package_id)
+
+    def test_v2_full_package_is_never_accepted_after_content_substitution(self):
+        from pathlib import Path
+        fixture = Path(__file__).resolve().parents[1] / "examples/synthetic/valid/package-0.2.0.json"
+        package = BcastPackage.load(fixture)
+        candidate = package.as_dict()
+        candidate["objects"][1]["content"]["text"] = "Substituted"
+        base_url, change_response = self.run_hostile_server(candidate)
+        client = BcastApiClient(base_url, package_contract="bcast.package/0.2.0")
+        with self.assertRaisesRegex(BcastApiProtocolError, "contract"):
+            client.get_package(package.package_id)
+        candidate["package_id"] = materialized_package_id(candidate)
+        change_response(candidate)
+        with self.assertRaisesRegex(BcastApiProtocolError, "identity"):
+            client.get_package(package.package_id)
+
 
 
 if __name__ == "__main__":
