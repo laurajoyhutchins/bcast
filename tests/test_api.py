@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from contextlib import redirect_stdout
 import io
+import json
 import threading
 import unittest
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from bcast import BcastApiClient, BcastApiProblem, BcastPackage, PackageValidationError, package_id, publication_id, regulatory_object_id
+from bcast import BcastApiClient, BcastApiProblem, BcastApiProtocolError, BcastPackage, PackageValidationError, package_id, publication_id, regulatory_object_id
 from bcast.cli import main as cli_main
 from bcast.server import make_server
 
@@ -61,6 +63,101 @@ class ApiClientServerTests(unittest.TestCase):
         self.addCleanup(server.server_close)
         self.addCleanup(server.shutdown)
         return package, f"http://127.0.0.1:{server.server_port}"
+
+    def run_hostile_server(self, initial_payload):
+        response = {"payload": initial_payload}
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, format, *args):
+                return
+
+            def do_GET(self):
+                body = json.dumps(response["payload"]).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(thread.join, 2)
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        return f"http://127.0.0.1:{server.server_port}", lambda value: response.update(payload=value)
+
+    def test_adversarial_metadata_responses_fail_closed(self):
+        package = self.make_package()
+        valid = package.metadata()
+        base_url, change_response = self.run_hostile_server(valid)
+        client = BcastApiClient(base_url)
+        self.assertEqual(package.package_id, client.get_package_metadata(package.package_id)["package_id"])
+        variants = [
+            {**valid, "package_id": f"bcastpkg:sha256:{'f' * 64}"},
+            {**valid, "private_compiler_state": "not public"},
+            {**valid, "publication": {**valid["publication"], "provider_key": "private"}},
+            {**valid, "schema_version": "bcast.package/unknown"},
+            ["not", "metadata"],
+        ]
+        for payload in variants:
+            with self.subTest(payload=payload):
+                change_response(payload)
+                with self.assertRaises(BcastApiProtocolError):
+                    client.get_package_metadata(package.package_id)
+
+    def test_adversarial_full_package_response_cannot_substitute_identity(self):
+        package = self.make_package()
+        valid = package.as_dict()
+        base_url, change_response = self.run_hostile_server(valid)
+        client = BcastApiClient(base_url)
+        self.assertEqual(valid, client.get_package(package.package_id))
+        with self.assertRaisesRegex(BcastApiProtocolError, "identity"):
+            client.get_package(f"bcastpkg:sha256:{'f' * 64}")
+
+        invalid = {**valid, "objects": [{**valid["objects"][0], "private_key": "not public"}, *valid["objects"][1:]]}
+        change_response(invalid)
+        with self.assertRaises(BcastApiProtocolError):
+            client.get_package(package.package_id)
+
+    def test_adversarial_object_response_checks_shape_and_requested_identity(self):
+        package = self.make_package()
+        valid = package.as_dict()["objects"][0]
+        base_url, change_response = self.run_hostile_server(valid)
+        client = BcastApiClient(base_url)
+        self.assertEqual(valid, client.get_object(package.package_id, valid["object_id"]))
+        for payload in [
+            valid,
+            {**valid, "private_source_locator": "secret"},
+            {**valid, "status": "unknown"},
+            {"object_id": valid["object_id"]},
+        ]:
+            with self.subTest(payload=payload):
+                change_response(payload)
+                requested = f"bcastobj:sha256:{'f' * 64}" if payload is valid else valid["object_id"]
+                with self.assertRaises(BcastApiProtocolError):
+                    client.get_object(package.package_id, requested)
+
+    def test_adversarial_children_require_direct_unique_sorted_public_records(self):
+        package = self.make_package()
+        root = package.as_dict()["objects"][0]["object_id"]
+        valid = package.children(root)
+        self.assertEqual(2, len(valid))
+        base_url, change_response = self.run_hostile_server(valid)
+        client = BcastApiClient(base_url)
+        self.assertEqual(valid, client.get_children(package.package_id, root))
+        for payload in [
+            list(reversed(valid)),
+            [valid[0], valid[0]],
+            [{**valid[0], "parent_id": f"bcastobj:sha256:{'f' * 64}"}],
+            [{**valid[0], "private_review": True}],
+            [{**valid[0], "assurance": "approved"}],
+            [valid[0], "not an object"],
+        ]:
+            with self.subTest(payload=payload):
+                change_response(payload)
+                with self.assertRaises(BcastApiProtocolError):
+                    client.get_children(package.package_id, root)
 
     def test_normative_identity_helpers_match_maintained_fixture_coordinates(self):
         publication = publication_id("example-safety-code", "2026")
