@@ -7,6 +7,7 @@ from pathlib import Path
 import unittest
 
 from bcast import BcastPackage, ObjectCoordinateNotFoundError, regulatory_object_id
+from bcast.validation import PackageValidationError
 from bcast.cli import main as cli_main
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -73,6 +74,49 @@ class NavigationTests(unittest.TestCase):
             ],
             out.getvalue().splitlines(),
         )
+
+
+    def test_navigation_returns_independent_copies(self):
+        package, root, section, _, _ = self.package_with_tree()
+        package.children(root["object_id"])[0]["label"] = "tampered"
+        package.roots()[0]["label"] = "tampered"
+        package.ancestors(section["object_id"])[0]["label"] = "tampered"
+        package.descendants(root["object_id"])[0]["label"] = "tampered"
+        self.assertEqual("Example Safety Code", package.get_object(root["object_id"])["label"])
+        self.assertEqual("Clearances", package.get_object(section["object_id"])["label"])
+
+    def test_deep_tree_is_valid_and_prints_without_recursion(self):
+        candidate = json.loads(VALID.read_text(encoding="utf-8"))
+        publication = candidate["publication"]["publication_id"]
+        parent_id = candidate["objects"][-1]["object_id"]
+        for index in range(1100):
+            object_id = regulatory_object_id(publication, "paragraph", f"nested-{index}")
+            candidate["objects"].append({
+                "object_id": object_id,
+                "kind": "paragraph",
+                "locator": f"nested-{index}",
+                "parent_id": parent_id,
+                "status": "resolved",
+                "assurance": "unreviewed",
+            })
+            parent_id = object_id
+        package = BcastPackage.from_mapping(candidate)
+        root_id = candidate["objects"][0]["object_id"]
+        self.assertEqual(1101, len(package.descendants(root_id)))
+        out = io.StringIO()
+        with redirect_stdout(out):
+            from bcast.cli import _print_tree
+            _print_tree(package)
+        self.assertEqual(1102, len(out.getvalue().splitlines()))
+
+    def test_cycle_and_missing_parent_still_fail(self):
+        candidate = json.loads(VALID.read_text(encoding="utf-8"))
+        candidate["objects"][0]["parent_id"] = candidate["objects"][1]["object_id"]
+        with self.assertRaises(PackageValidationError):
+            BcastPackage.from_mapping(candidate)
+        candidate["objects"][0]["parent_id"] = "bcastobj:sha256:" + "0" * 64
+        with self.assertRaises(PackageValidationError):
+            BcastPackage.from_mapping(candidate)
 
 
 if __name__ == "__main__":

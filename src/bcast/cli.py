@@ -59,15 +59,17 @@ def _print_json(value) -> None:
 
 
 def _print_tree(package: BcastPackage) -> None:
-    def visit(record, depth: int) -> None:
+    # Explicit stack avoids RecursionError on valid deeply nested publications.
+    pending = [(root, 0) for root in reversed(package.roots())]
+    while pending:
+        record, depth = pending.pop()
         label = record.get("label")
         suffix = f" {label}" if label else ""
         print(f"{'  ' * depth}{record['kind']} {record['locator']}{suffix}")
-        for child in package.children(record["object_id"]):
-            visit(child, depth + 1)
-
-    for root in package.roots():
-        visit(root, 0)
+        pending.extend(
+            (child, depth + 1)
+            for child in reversed(package.children(record["object_id"]))
+        )
 
 
 def main(argv: Sequence[str] | None = None) -> int:

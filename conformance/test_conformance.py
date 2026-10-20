@@ -1,10 +1,10 @@
 from copy import deepcopy
-from pathlib import Path
 import unittest
 
 from jsonschema import Draft202012Validator
 
-from conformance.validate import load_json, validate_semantics
+from bcast.validation import PackageValidationError, load_schema, validate_package
+from conformance.validate import load_json
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,31 +29,33 @@ class PackageConformanceTests(unittest.TestCase):
             key=lambda item: list(item.absolute_path),
         )
         self.assertEqual([], [error.message for error in errors])
-        self.assertEqual([], validate_semantics(VALID_PACKAGE_PATH, self.package))
+        self.assertEqual(load_schema(), schema)
+        validate_package(self.package)
 
     def test_wrong_package_identity_is_rejected(self) -> None:
         candidate = deepcopy(self.package)
         candidate["package_id"] = f"bcastpkg:sha256:{'0' * 64}"
-        failures = validate_semantics(Path("wrong-package-id.json"), candidate)
-        self.assertTrue(
-            any("package_id does not match canonical package identity" in failure for failure in failures)
-        )
+        with self.assertRaises(PackageValidationError) as captured:
+            validate_package(candidate)
+        self.assertIn("package_id does not match canonical package identity", str(captured.exception))
 
     def test_missing_parent_fixture_is_rejected(self) -> None:
         candidate = load_json(INVALID_MISSING_PARENT_PATH)
         schema = load_json(SCHEMA_PATH)
         errors = list(Draft202012Validator(schema).iter_errors(candidate))
         self.assertEqual([], [error.message for error in errors])
-        failures = validate_semantics(INVALID_MISSING_PARENT_PATH, candidate)
-        self.assertTrue(any("missing parent object" in failure for failure in failures))
+        with self.assertRaises(PackageValidationError) as captured:
+            validate_package(candidate)
+        self.assertIn("missing parent object", str(captured.exception))
 
     def test_structural_parent_cycle_is_rejected(self) -> None:
         candidate = deepcopy(self.package)
         document = candidate["objects"][0]
         section = candidate["objects"][1]
         document["parent_id"] = section["object_id"]
-        failures = validate_semantics(Path("parent-cycle.json"), candidate)
-        self.assertTrue(any("structural parent cycle" in failure for failure in failures))
+        with self.assertRaises(PackageValidationError) as captured:
+            validate_package(candidate)
+        self.assertIn("structural parent cycle", str(captured.exception))
 
 
 class ApiContractTests(unittest.TestCase):
