@@ -1,6 +1,6 @@
 # Public Architecture
 
-BCAST presents stable consumer-facing contracts around a private regulatory compilation service.
+BCAST defines versioned, pre-1.0 consumer-facing contracts for regulatory packages. Production compilation and provider access remain separate private implementation responsibilities.
 
 ```text
 publishers / authorities / lawful providers
@@ -9,7 +9,7 @@ publishers / authorities / lawful providers
         +-------------------+
         | private BCAST     |
         | compilation      |
-        | service          |
+        | (not deployed)   |
         +-------------------+
                  |
                  v
@@ -45,19 +45,19 @@ The public side defines only what downstream consumers need to rely on:
 
 ## Package contract
 
-The first maintained package contract is [`bcast.package/0.1`](../spec/package-0.1.md). It is a deliberately small pre-1.0 consumer contract for package identity, publication identity, regulatory objects, structural parentage, explicit resolution state, public assurance state, optional plain text, and source-safe provenance.
+The first maintained package contract is [`bcast.package/0.1.0`](../spec/package-0.1.0.md). It is a deliberately small pre-1.0 consumer contract for package identity, publication identity, regulatory objects, structural parentage, explicit resolution state, public assurance state, optional plain text, and source-safe provenance.
 
 The contract describes consumer-visible output. It does not expose provider acquisition, normalization, review queues, compiler intermediate representations, graph compilation, or package-build machinery.
 
 ## Service API
 
-No public service API has been released yet. A future public service API should be read-oriented. Candidate operations include retrieving package metadata, retrieving a regulatory object by canonical identity, traversing public relationships, and checking compatibility.
+The maintained [`bcast.api/0.1.0`](../spec/api-0.1.0.md) draft is read-only and declares explicit compatibility with `bcast.package/0.1.0` only. Its four GET operations retrieve package metadata, a full package, an object, and its direct structural children. The public client and local reference server exercise this contract with already-built packages; neither constitutes a deployed production service.
 
-Ingestion, normalization, review, and package-build operations are private and should not appear in the public API merely because an internal endpoint exists.
+Discovery, amendment traversal, cross-edition relationships, production search, and provider acquisition are not part of this API. Ingestion, normalization, review, and package-build operations remain private implementation concerns.
 
 ## Client SDKs
 
-Public SDKs should be thin clients generated from, or mechanically checked against, the service contract wherever practical. They should not duplicate regulatory interpretation or compilation logic.
+Public SDKs should be thin consumer clients mechanically checked against the maintained contract. The current source-independent Python client reads local packages and can retrieve objects through the draft read-only API. They should not duplicate regulatory interpretation or compilation logic.
 
 ## Conformance
 
