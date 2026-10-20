@@ -23,7 +23,10 @@ class ObjectCoordinateNotFoundError(LookupError):
 
 class BcastPackage:
     def __init__(self, data: Mapping[str, Any]):
+        # Every package object, including one passed directly to the reference
+        # server, must satisfy the public contract before indexes are built.
         self._data = deepcopy(dict(data))
+        validate_package(self._data)
         self._objects = {item["object_id"]: item for item in self._data["objects"]}
         self._coordinates = {(item["kind"], item["locator"]): item for item in self._data["objects"]}
 
@@ -36,9 +39,7 @@ class BcastPackage:
 
     @classmethod
     def from_mapping(cls, value: Mapping[str, Any]) -> "BcastPackage":
-        data = deepcopy(dict(value))
-        validate_package(data)
-        return cls(data)
+        return cls(value)
 
     @classmethod
     def schema(cls) -> dict[str, Any]:
