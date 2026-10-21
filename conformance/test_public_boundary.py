@@ -23,6 +23,7 @@ class PublicBoundaryTests(unittest.TestCase):
             "spec/package-0.1.0.md",
             "src/bcast/package.py",
             "tests/test_client.py",
+            "tools/check.py",
         ]))
 
     def test_private_implementation_and_data_shapes_are_rejected(self):
