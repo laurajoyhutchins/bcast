@@ -57,9 +57,9 @@ BCAST represents **what an identified publication contains** and the limits of t
 
 ## Current implementation and migration
 
-Today the public repository already owns package contracts, identities, validation, consumers, a CLI and a local read-only reference server. It does **not yet** have a reusable neutral-input compiler or full production application.
+Today the public repository already owns package contracts, identities, validation, consumers, a CLI and a local read-only reference server. It now provides a reusable `build_package_v2` neutral-input compiler, but not a deployed production application.
 
-The private `src/bcast_private/ecfr.py` currently mixes eCFR-specific acquisition/normalization concerns with provider-neutral package assembly. This remains operational during migration; it is not a second long-term software authority. Do not extract it wholesale or copy private Git history to the public repository. Identify the reusable, source-independent logic, review it for safe publication, implement it in the public library, and retain only source-specific adapters and data operations privately.
+The private `src/bcast_private/ecfr.py` supplies normalized eCFR source records to the public package builder, which derives every canonical BCAST package and object identity. Source-specific XML interpretation, independent source correspondence auditing, protected mappings, retention and rights decisions remain private. This is not evidence that production GCS readback or rights-reviewed distribution is complete.
 
 Required cutover evidence:
 1. Public synthetic compilation produces a conforming 0.2.0 package with stable identities and explicit unsupported/unresolved states, without private dependencies.

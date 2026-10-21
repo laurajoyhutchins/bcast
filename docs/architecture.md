@@ -46,6 +46,6 @@ Avoid introducing a generic adapter/plugin framework before the bounded eCFR mig
 
 ## Progress and verification
 
-The public side currently has package consumption and validation but not the complete neutral compilation unit. The private eCFR path presently performs both source-specific normalization and package construction. Migration is pending. Exact-source replay, independent source text/structure audits, error-state fidelity, and public/private conformance must remain true at cutover. Code coverage percentages alone do not establish these properties.
+The public `src/bcast/compiler.py` provides `build_package_v2`, an independently testable normalized-record builder. The private eCFR adapter calls that public implementation for package construction and retains separate source-to-package fidelity audits. A passing synthetic test or documented split alone does not prove exact-source replay, archive retention, rights clearance or production distribution. Those require their own verified evidence.
 
 BCAST is source representation, not jurisdictional adoption (Building Code Map) and not engineering calculation approval (Arcata).
