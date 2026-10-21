@@ -2,18 +2,49 @@ name: Conformance
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: bcast-conformance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   conformance:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check out repository
+      - name: Check out exact GitHub candidate
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Bind exact CI candidate
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            read -r tested base head extra <<< "$(git rev-list --parents -n 1 HEAD)"
+            test -z "${extra:-}"
+            test "$tested" = "$EXPECTED_SHA"
+            test "$head" = "$PR_HEAD_SHA"
+          fi
+          echo "### Verification identity" >> "$GITHUB_STEP_SUMMARY"
+          echo "- tested SHA: \`$(git rev-parse HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- candidate tree: \`$(git rev-parse 'HEAD^{tree}')\`" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo "- source head: \`$PR_HEAD_SHA\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
