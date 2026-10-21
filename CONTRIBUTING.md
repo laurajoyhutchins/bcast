@@ -31,6 +31,18 @@ Do not submit:
 
 See [`docs/source-and-rights.md`](docs/source-and-rights.md) for the source and redistribution policy.
 
+## Local verification
+
+Use Python 3.12, then install the public client and pinned development tools:
+
+```bash
+python -m pip install -e '.[dev]' -r conformance/requirements.txt
+python tools/check.py --preflight  # read-only Ruff lint
+python tools/check.py              # same offline checks as CI
+```
+
+Full-tree formatting can be inspected separately with `python tools/check.py --preflight --check-format`; legacy formatting is not part of the initial CI gate. To apply safe style changes deliberately, use `python tools/check.py --preflight --fix-style` and review the diff before committing. The complete suite also enforces the public/private source boundary, clients, both public package versions and synthetic contracts. It does not verify live private acquisitions.
+
 ## Contributor preflight
 
 Before opening a pull request, confirm all of the following:

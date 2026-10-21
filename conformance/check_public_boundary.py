@@ -6,7 +6,7 @@ import sys
 from typing import Iterable
 
 _ALLOWED_TOP_LEVEL_DIRECTORIES = frozenset({
-    ".github", "conformance", "docs", "examples", "spec", "src", "tests",
+    ".github", "conformance", "docs", "examples", "spec", "src", "tests", "tools",
 })
 _FORBIDDEN_ARTIFACT_SUFFIXES = (
     ".pdf", ".zip", ".tar", ".tgz", ".7z", ".gz", ".bz2", ".xz",
