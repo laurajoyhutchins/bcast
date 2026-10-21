@@ -45,7 +45,7 @@ class PublicPackageBuilderTests(unittest.TestCase):
         second = build_package_v2(publication=metadata, package_version=fixture["package_version"], objects=reversed(drafts))
         self.assertEqual(first, second)
         metadata["title"] = "Mutated after compilation"
-        drafts[1]["content"]["text"] = "Mutated after compilation"
+        next(item for item in drafts if item["kind"] == "section")["content"]["text"] = "Mutated after compilation"
         self.assertEqual(fixture, first)
 
     def test_changes_in_content_or_source_provenance_change_materialization(self):
@@ -54,7 +54,7 @@ class PublicPackageBuilderTests(unittest.TestCase):
             with self.subTest(changed_field=changed_field):
                 modified = deepcopy(drafts)
                 if changed_field == "content":
-                    modified[1]["content"]["text"] += " Updated"
+                    next(item for item in modified if item["kind"] == "section")["content"]["text"] += " Updated"
                 else:
                     modified[1]["provenance"]["citation"] += " Updated"
                 result = build_package_v2(publication=metadata, package_version=fixture["package_version"], objects=modified)
