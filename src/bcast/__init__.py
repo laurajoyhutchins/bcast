@@ -1,6 +1,7 @@
 """Thin public consumer client for BCAST package and API contracts."""
 
 from .api import BcastApiClient, BcastApiError, BcastApiProblem, BcastApiProtocolError
+from .compiler import compile_package
 from .identifiers import materialized_package_id, package_id, publication_id, publication_id_v2, regulatory_object_id
 from .package import BcastPackage, ObjectCoordinateNotFoundError, ObjectNotFoundError
 from .validation import PackageValidationError, validate_package
@@ -11,6 +12,7 @@ __all__ = [
     "BcastApiProblem",
     "BcastApiProtocolError",
     "BcastPackage",
+    "compile_package",
     "ObjectNotFoundError",
     "ObjectCoordinateNotFoundError",
     "PackageValidationError",
