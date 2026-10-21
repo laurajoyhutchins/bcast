@@ -49,9 +49,6 @@ def main() -> int:
     parser.add_argument(
         "--fix-style", action="store_true", help="Apply safe Ruff fixes before preflight"
     )
-    parser.add_argument(
-        "--check-format", action="store_true", help="Check full-tree Ruff formatting"
-    )
     args = parser.parse_args()
     if args.fix_style and not args.preflight:
         parser.error("--fix-style requires --preflight")
