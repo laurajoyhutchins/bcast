@@ -25,8 +25,8 @@ def main() -> int:
     # The installed project and runtime are supplied by each repository.
     if args.fix_style:
         for command in (
-            [sys.executable, "-m", "ruff", "check", "--fix", "src", "tests"],
-            [sys.executable, "-m", "ruff", "format", "src", "tests"],
+            [sys.executable, "-m", "ruff", "check", "--fix", "."],
+            [sys.executable, "-m", "ruff", "format", "."],
         ):
             if subprocess.run(command, cwd=ROOT, env=env, check=False).returncode:
                 return 1
