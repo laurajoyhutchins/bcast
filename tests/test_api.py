@@ -7,7 +7,17 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from bcast import BcastApiClient, BcastApiProblem, BcastApiProtocolError, BcastPackage, PackageValidationError, materialized_package_id, package_id, publication_id, regulatory_object_id
+from bcast import (
+    BcastApiClient,
+    BcastApiProblem,
+    BcastApiProtocolError,
+    BcastPackage,
+    PackageValidationError,
+    materialized_package_id,
+    package_id,
+    publication_id,
+    regulatory_object_id,
+)
 from bcast.cli import main as cli_main
 from bcast.server import make_server
 
@@ -18,41 +28,43 @@ class ApiClientServerTests(unittest.TestCase):
         root = regulatory_object_id(publication, "document", "root")
         section_a = regulatory_object_id(publication, "section", "1.0")
         section_b = regulatory_object_id(publication, "section", "1.1")
-        return BcastPackage({
-            "schema_version": "bcast.package/0.1.0",
-            "package_id": package_id(publication, "2026.08.synthetic.1"),
-            "package_version": "2026.08.synthetic.1",
-            "publication": {
-                "publication_id": publication,
-                "family": "example-safety-code",
-                "edition": "2026",
-            },
-            "objects": [
-                {
-                    "object_id": root,
-                    "kind": "document",
-                    "locator": "root",
-                    "status": "resolved",
-                    "assurance": "verified",
+        return BcastPackage(
+            {
+                "schema_version": "bcast.package/0.1.0",
+                "package_id": package_id(publication, "2026.08.synthetic.1"),
+                "package_version": "2026.08.synthetic.1",
+                "publication": {
+                    "publication_id": publication,
+                    "family": "example-safety-code",
+                    "edition": "2026",
                 },
-                {
-                    "object_id": section_b,
-                    "kind": "section",
-                    "locator": "1.1",
-                    "parent_id": root,
-                    "status": "unresolved",
-                    "assurance": "reviewed",
-                },
-                {
-                    "object_id": section_a,
-                    "kind": "section",
-                    "locator": "1.0",
-                    "parent_id": root,
-                    "status": "resolved",
-                    "assurance": "reviewed",
-                },
-            ],
-        })
+                "objects": [
+                    {
+                        "object_id": root,
+                        "kind": "document",
+                        "locator": "root",
+                        "status": "resolved",
+                        "assurance": "verified",
+                    },
+                    {
+                        "object_id": section_b,
+                        "kind": "section",
+                        "locator": "1.1",
+                        "parent_id": root,
+                        "status": "unresolved",
+                        "assurance": "reviewed",
+                    },
+                    {
+                        "object_id": section_a,
+                        "kind": "section",
+                        "locator": "1.0",
+                        "parent_id": root,
+                        "status": "resolved",
+                        "assurance": "reviewed",
+                    },
+                ],
+            }
+        )
 
     def run_server(self):
         package = self.make_package()
@@ -85,14 +97,18 @@ class ApiClientServerTests(unittest.TestCase):
         self.addCleanup(thread.join, 2)
         self.addCleanup(server.server_close)
         self.addCleanup(server.shutdown)
-        return f"http://127.0.0.1:{server.server_port}", lambda value: response.update(payload=value)
+        return f"http://127.0.0.1:{server.server_port}", lambda value: response.update(
+            payload=value
+        )
 
     def test_adversarial_metadata_responses_fail_closed(self):
         package = self.make_package()
         valid = package.metadata()
         base_url, change_response = self.run_hostile_server(valid)
         client = BcastApiClient(base_url)
-        self.assertEqual(package.package_id, client.get_package_metadata(package.package_id)["package_id"])
+        self.assertEqual(
+            package.package_id, client.get_package_metadata(package.package_id)["package_id"]
+        )
         variants = [
             {**valid, "package_id": f"bcastpkg:sha256:{'f' * 64}"},
             {**valid, "private_compiler_state": "not public"},
@@ -117,7 +133,13 @@ class ApiClientServerTests(unittest.TestCase):
         with self.assertRaisesRegex(BcastApiProtocolError, "identity"):
             client.get_package(f"bcastpkg:sha256:{'f' * 64}")
 
-        invalid = {**valid, "objects": [{**valid["objects"][0], "private_key": "not public"}, *valid["objects"][1:]]}
+        invalid = {
+            **valid,
+            "objects": [
+                {**valid["objects"][0], "private_key": "not public"},
+                *valid["objects"][1:],
+            ],
+        }
         change_response(invalid)
         with self.assertRaises(BcastApiProtocolError):
             client.get_package(package.package_id)
@@ -136,7 +158,9 @@ class ApiClientServerTests(unittest.TestCase):
         ]:
             with self.subTest(payload=payload):
                 change_response(payload)
-                requested = f"bcastobj:sha256:{'f' * 64}" if payload is valid else valid["object_id"]
+                requested = (
+                    f"bcastobj:sha256:{'f' * 64}" if payload is valid else valid["object_id"]
+                )
                 with self.assertRaises(BcastApiProtocolError):
                     client.get_object(package.package_id, requested)
 
@@ -185,7 +209,9 @@ class ApiClientServerTests(unittest.TestCase):
             sorted(item["object_id"] for item in children),
             [item["object_id"] for item in children],
         )
-        self.assertEqual({"object_id", "kind", "locator", "parent_id", "status", "assurance"}, set(children[0]))
+        self.assertEqual(
+            {"object_id", "kind", "locator", "parent_id", "status", "assurance"}, set(children[0])
+        )
 
         unresolved = package.as_dict()["objects"][1]["object_id"]
         self.assertEqual("unresolved", client.get_object(package.package_id, unresolved)["status"])
@@ -220,13 +246,17 @@ class ApiClientServerTests(unittest.TestCase):
         self.assertEqual(0, rc)
         self.assertIn(package.package_id, out.getvalue())
 
-
     def test_v2_reference_server_round_trip_and_contract_rejection(self):
         from pathlib import Path
-        fixture = Path(__file__).resolve().parents[1] / "examples/synthetic/valid/package-0.2.0.json"
+
+        fixture = (
+            Path(__file__).resolve().parents[1] / "examples/synthetic/valid/package-0.2.0.json"
+        )
         v2 = BcastPackage.load(fixture)
         old = self.make_package()
-        server = make_server([v2, old], host="127.0.0.1", port=0, package_contract="bcast.package/0.2.0")
+        server = make_server(
+            [v2, old], host="127.0.0.1", port=0, package_contract="bcast.package/0.2.0"
+        )
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         self.addCleanup(thread.join, 2)
@@ -247,7 +277,10 @@ class ApiClientServerTests(unittest.TestCase):
 
     def test_v2_full_package_is_never_accepted_after_content_substitution(self):
         from pathlib import Path
-        fixture = Path(__file__).resolve().parents[1] / "examples/synthetic/valid/package-0.2.0.json"
+
+        fixture = (
+            Path(__file__).resolve().parents[1] / "examples/synthetic/valid/package-0.2.0.json"
+        )
         package = BcastPackage.load(fixture)
         candidate = package.as_dict()
         candidate["objects"][1]["content"]["text"] = "Substituted"
@@ -259,7 +292,6 @@ class ApiClientServerTests(unittest.TestCase):
         change_response(candidate)
         with self.assertRaisesRegex(BcastApiProtocolError, "identity"):
             client.get_package(package.package_id)
-
 
 
 if __name__ == "__main__":

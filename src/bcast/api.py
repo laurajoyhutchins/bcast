@@ -62,7 +62,9 @@ def _object_schema(version: str) -> dict[str, Any]:
 
 
 class BcastApiClient:
-    def __init__(self, base_url: str, *, timeout: float = 10.0, package_contract: str = "bcast.package/0.1.0"):
+    def __init__(
+        self, base_url: str, *, timeout: float = 10.0, package_contract: str = "bcast.package/0.1.0"
+    ):
         base = base_url.strip().rstrip("/")
         if not base:
             raise ValueError("base_url must not be empty")
@@ -77,28 +79,44 @@ class BcastApiClient:
         return quote(value, safe="")
 
     def _get_json(self, path: str) -> Any:
-        request = Request(f"{self.base_url}{path}", headers={"Accept": "application/json"}, method="GET")
+        request = Request(
+            f"{self.base_url}{path}", headers={"Accept": "application/json"}, method="GET"
+        )
         try:
             with urlopen(request, timeout=self.timeout) as response:
                 content_type = response.headers.get_content_type()
                 if content_type != "application/json":
-                    raise BcastApiProtocolError(f"expected application/json, got {content_type}", response.status)
+                    raise BcastApiProtocolError(
+                        f"expected application/json, got {content_type}", response.status
+                    )
                 try:
                     return json.loads(response.read().decode("utf-8"))
                 except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-                    raise BcastApiProtocolError("BCAST API returned invalid JSON", response.status) from exc
+                    raise BcastApiProtocolError(
+                        "BCAST API returned invalid JSON", response.status
+                    ) from exc
         except HTTPError as exc:
             body = exc.read()
             try:
                 problem = json.loads(body.decode("utf-8"))
             except (UnicodeDecodeError, json.JSONDecodeError):
-                raise BcastApiProtocolError("BCAST API returned a non-JSON error", exc.code) from exc
-            if not isinstance(problem, dict) or not isinstance(problem.get("code"), str) or not isinstance(problem.get("message"), str):
-                raise BcastApiProtocolError("BCAST API returned an invalid problem object", exc.code) from exc
+                raise BcastApiProtocolError(
+                    "BCAST API returned a non-JSON error", exc.code
+                ) from exc
+            if (
+                not isinstance(problem, dict)
+                or not isinstance(problem.get("code"), str)
+                or not isinstance(problem.get("message"), str)
+            ):
+                raise BcastApiProtocolError(
+                    "BCAST API returned an invalid problem object", exc.code
+                ) from exc
             code = problem["code"]
             expected_status = PROBLEM_HTTP_STATUS.get(code)
             if expected_status is None or expected_status != exc.code:
-                raise BcastApiProtocolError("BCAST API returned inconsistent problem semantics", exc.code) from exc
+                raise BcastApiProtocolError(
+                    "BCAST API returned inconsistent problem semantics", exc.code
+                ) from exc
             raise BcastApiProblem(
                 code,
                 problem["message"],
@@ -108,28 +126,42 @@ class BcastApiClient:
 
     def get_package_metadata(self, package_id: str) -> dict[str, Any]:
         value = self._get_json(f"/packages/{self._segment(package_id)}/metadata")
-        _require_public_shape(value, _metadata_schema(self.package_contract), "package metadata response")
+        _require_public_shape(
+            value, _metadata_schema(self.package_contract), "package metadata response"
+        )
         if value["schema_version"] != self.package_contract:
-            raise BcastApiProtocolError("package metadata response uses incompatible contract version")
+            raise BcastApiProtocolError(
+                "package metadata response uses incompatible contract version"
+            )
         if value["package_id"] != package_id:
-            raise BcastApiProtocolError("package metadata response identity differs from requested package")
+            raise BcastApiProtocolError(
+                "package metadata response identity differs from requested package"
+            )
         publication = value["publication"]
         if self.package_contract == "bcast.package/0.2.0":
             expected_publication_id = publication_id_v2(
-                publication["namespace"], publication["family"],
-                publication["edition"], publication.get("revision"),
+                publication["namespace"],
+                publication["family"],
+                publication["edition"],
+                publication.get("revision"),
             )
         else:
             expected_publication_id = publication_id(
                 publication["family"], publication["edition"], publication.get("revision")
             )
         if publication["publication_id"] != expected_publication_id:
-            raise BcastApiProtocolError("package metadata response has inconsistent publication identity")
+            raise BcastApiProtocolError(
+                "package metadata response has inconsistent publication identity"
+            )
         # A 0.2.0 package ID hashes the full body. Metadata alone cannot
         # prove it, so never claim the digest was verified from this projection.
         if self.package_contract == "bcast.package/0.1.0":
-            if value["package_id"] != canonical_package_id(publication["publication_id"], value["package_version"]):
-                raise BcastApiProtocolError("package metadata response has inconsistent package identity")
+            if value["package_id"] != canonical_package_id(
+                publication["publication_id"], value["package_version"]
+            ):
+                raise BcastApiProtocolError(
+                    "package metadata response has inconsistent package identity"
+                )
         return value
 
     def get_package(self, package_id: str) -> dict[str, Any]:
@@ -137,7 +169,9 @@ class BcastApiClient:
         try:
             validate_package(value)
         except PackageValidationError as exc:
-            raise BcastApiProtocolError("package response violates the public BCAST contract") from exc
+            raise BcastApiProtocolError(
+                "package response violates the public BCAST contract"
+            ) from exc
         if value["schema_version"] != self.package_contract:
             raise BcastApiProtocolError("package response uses incompatible contract version")
         if value["package_id"] != package_id:

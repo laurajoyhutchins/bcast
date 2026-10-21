@@ -35,7 +35,9 @@ def package_id(publication_id: str, package_version: str) -> str:
     )
 
 
-def publication_id_v2(namespace: str, family: str, edition: str, revision: str | None = None) -> str:
+def publication_id_v2(
+    namespace: str, family: str, edition: str, revision: str | None = None
+) -> str:
     """Identity under the issuing authority's stable namespace, never a provider ID."""
     identity = {"namespace": namespace, "family": family, "edition": edition}
     if revision is not None:

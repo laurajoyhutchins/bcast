@@ -27,7 +27,9 @@ class BcastPackage:
         self._data = deepcopy(dict(data))
         validate_package(self._data)
         self._objects = {item["object_id"]: item for item in self._data["objects"]}
-        self._coordinates = {(item["kind"], item["locator"]): item for item in self._data["objects"]}
+        self._coordinates = {
+            (item["kind"], item["locator"]): item for item in self._data["objects"]
+        }
         self._children: dict[str, list[dict[str, Any]]] = {}
         self._roots: list[dict[str, Any]] = []
         for item in self._data["objects"]:
@@ -69,12 +71,14 @@ class BcastPackage:
         return deepcopy(self._data)
 
     def metadata(self) -> dict[str, Any]:
-        return deepcopy({
-            "schema_version": self._data["schema_version"],
-            "package_id": self._data["package_id"],
-            "package_version": self._data["package_version"],
-            "publication": self._data["publication"],
-        })
+        return deepcopy(
+            {
+                "schema_version": self._data["schema_version"],
+                "package_id": self._data["package_id"],
+                "package_version": self._data["package_version"],
+                "publication": self._data["publication"],
+            }
+        )
 
     def get_object(self, object_id: str) -> dict[str, Any]:
         record = self._objects.get(object_id)

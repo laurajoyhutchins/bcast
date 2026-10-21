@@ -7,7 +7,13 @@ import json
 from pathlib import Path
 import unittest
 
-from bcast import BcastPackage, materialized_package_id, publication_id_v2, regulatory_object_id, validate_package
+from bcast import (
+    BcastPackage,
+    materialized_package_id,
+    publication_id_v2,
+    regulatory_object_id,
+    validate_package,
+)
 from bcast.validation import PackageValidationError, load_schema
 from conformance.validate_openapi import validate_openapi_document
 
@@ -26,7 +32,9 @@ class V2PackageConformance(unittest.TestCase):
         self.assertEqual(load_schema("bcast.package/0.2.0"), json.loads(SCHEMA.read_text()))
         validate_package(self.package)
         self.assertEqual(self.package["package_id"], materialized_package_id(self.package))
-        self.assertEqual("bcast.package/0.2.0", BcastPackage.from_mapping(self.package).schema_version)
+        self.assertEqual(
+            "bcast.package/0.2.0", BcastPackage.from_mapping(self.package).schema_version
+        )
 
     def test_different_authority_namespaces_do_not_collide(self):
         original = self.package["publication"]

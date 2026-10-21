@@ -5,12 +5,34 @@ import subprocess
 import sys
 from typing import Iterable
 
-_ALLOWED_TOP_LEVEL_DIRECTORIES = frozenset({
-    ".github", "conformance", "docs", "examples", "spec", "src", "tests", "tools",
-})
+_ALLOWED_TOP_LEVEL_DIRECTORIES = frozenset(
+    {
+        ".github",
+        "conformance",
+        "docs",
+        "examples",
+        "spec",
+        "src",
+        "tests",
+        "tools",
+    }
+)
 _FORBIDDEN_ARTIFACT_SUFFIXES = (
-    ".pdf", ".zip", ".tar", ".tgz", ".7z", ".gz", ".bz2", ".xz",
-    ".db", ".sqlite", ".sqlite3", ".duckdb", ".parquet", ".pkl", ".pickle",
+    ".pdf",
+    ".zip",
+    ".tar",
+    ".tgz",
+    ".7z",
+    ".gz",
+    ".bz2",
+    ".xz",
+    ".db",
+    ".sqlite",
+    ".sqlite3",
+    ".duckdb",
+    ".parquet",
+    ".pkl",
+    ".pickle",
 )
 
 
@@ -24,7 +46,9 @@ def boundary_violations(paths: Iterable[str]) -> list[str]:
         if parts and parts[0] == "examples" and (len(parts) < 2 or parts[1] != "synthetic"):
             violations.append(f"{raw}: public examples must live under examples/synthetic/")
         if raw.lower().endswith(_FORBIDDEN_ARTIFACT_SUFFIXES):
-            violations.append(f"{raw}: tracked source/corpus artifact format is forbidden in the public repository")
+            violations.append(
+                f"{raw}: tracked source/corpus artifact format is forbidden in the public repository"
+            )
     return violations
 
 

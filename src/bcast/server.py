@@ -44,7 +44,9 @@ def _handler_for(store: BcastPackageStore, package_contract: str):
             self.end_headers()
             self.wfile.write(body)
 
-        def _problem(self, status: int, code: str, message: str, resource_id: str | None = None) -> None:
+        def _problem(
+            self, status: int, code: str, message: str, resource_id: str | None = None
+        ) -> None:
             payload = {"code": code, "message": message}
             if resource_id is not None:
                 payload["resource_id"] = resource_id
@@ -65,7 +67,12 @@ def _handler_for(store: BcastPackageStore, package_contract: str):
                 self._problem(404, "not_found", "BCAST package not found", package_id)
                 return
             if package.schema_version != package_contract:
-                self._problem(409, "incompatible_version", "BCAST package contract is incompatible", package_id)
+                self._problem(
+                    409,
+                    "incompatible_version",
+                    "BCAST package contract is incompatible",
+                    package_id,
+                )
                 return
 
             if len(segments) == 2:
@@ -105,7 +112,10 @@ def make_server(
 
 
 def serve_paths(
-    paths: Iterable[str | Path], *, host: str = "127.0.0.1", port: int = 8000,
+    paths: Iterable[str | Path],
+    *,
+    host: str = "127.0.0.1",
+    port: int = 8000,
     package_contract: str = "bcast.package/0.1.0",
 ) -> None:
     store = BcastPackageStore.from_paths(paths)

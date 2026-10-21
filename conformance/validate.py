@@ -39,7 +39,9 @@ def main() -> int:
         print(f"ERROR {args.schema}: {exc}", file=sys.stderr)
         return 1
     if supplied_schema != packaged_schema:
-        print(f"ERROR {args.schema}: schema differs from the packaged client schema", file=sys.stderr)
+        print(
+            f"ERROR {args.schema}: schema differs from the packaged client schema", file=sys.stderr
+        )
         return 1
 
     failed = False

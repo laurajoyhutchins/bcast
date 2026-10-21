@@ -53,7 +53,9 @@ class NavigationTests(unittest.TestCase):
             [item["object_id"] for item in package.ancestors(grandchild["object_id"])],
         )
         expected = sorted([section["object_id"], sibling["object_id"], grandchild["object_id"]])
-        self.assertEqual(expected, [item["object_id"] for item in package.descendants(root["object_id"])])
+        self.assertEqual(
+            expected, [item["object_id"] for item in package.descendants(root["object_id"])]
+        )
 
     def test_exact_coordinate_lookup_is_public_and_explicit(self):
         package, _, section, _, _ = self.package_with_tree()
@@ -75,7 +77,6 @@ class NavigationTests(unittest.TestCase):
             out.getvalue().splitlines(),
         )
 
-
     def test_navigation_returns_independent_copies(self):
         package, root, section, _, _ = self.package_with_tree()
         package.children(root["object_id"])[0]["label"] = "tampered"
@@ -91,14 +92,16 @@ class NavigationTests(unittest.TestCase):
         parent_id = candidate["objects"][-1]["object_id"]
         for index in range(1100):
             object_id = regulatory_object_id(publication, "paragraph", f"nested-{index}")
-            candidate["objects"].append({
-                "object_id": object_id,
-                "kind": "paragraph",
-                "locator": f"nested-{index}",
-                "parent_id": parent_id,
-                "status": "resolved",
-                "assurance": "unreviewed",
-            })
+            candidate["objects"].append(
+                {
+                    "object_id": object_id,
+                    "kind": "paragraph",
+                    "locator": f"nested-{index}",
+                    "parent_id": parent_id,
+                    "status": "resolved",
+                    "assurance": "unreviewed",
+                }
+            )
             parent_id = object_id
         package = BcastPackage.from_mapping(candidate)
         root_id = candidate["objects"][0]["object_id"]
@@ -106,6 +109,7 @@ class NavigationTests(unittest.TestCase):
         out = io.StringIO()
         with redirect_stdout(out):
             from bcast.cli import _print_tree
+
             _print_tree(package)
         self.assertEqual(1102, len(out.getvalue().splitlines()))
 
