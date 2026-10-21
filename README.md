@@ -79,6 +79,39 @@ BCAST is public and pre-1.0. Draft package and read-only API contracts exist, bu
 
 The repository history and public surface were reviewed for publication safety before the public cutover on August 26, 2026. Apache-2.0 is the selected license for BCAST-authored public-repository material. The completed publication record is in [`docs/publication-checklist.md`](docs/publication-checklist.md).
 
+## Public neutral package builder
+
+BCAST builds `bcast.package/0.2.0` packages from source-independent normalized
+publication metadata and object coordinates. The public package builder owns
+canonical publication, object and package identities; source adapters do not.
+
+```python
+from bcast import build_package_v2
+
+package = build_package_v2(
+    publication={
+        "namespace": "codes.example",
+        "family": "example-safety-code",
+        "edition": "2026",
+    },
+    package_version="synthetic.1",
+    objects=[
+        {"kind": "document", "locator": "root", "status": "resolved"},
+        {"kind": "section", "locator": "1",
+         "parent": {"kind": "document", "locator": "root"},
+         "status": "unresolved"},
+    ],
+)
+```
+
+Each normalized object has `kind` and `locator` and optionally a `parent`
+coordinate containing exactly `kind` and `locator`. The builder derives
+`publication_id`, `object_id`, `parent_id` and `package_id`, sorts records
+and validates the resulting package. Source-specific structure parsing, source
+fidelity, authorization, retention and rights review remain separate private
+data operations. A validated package is not a legal certification or license
+to redistribute regulatory content.
+
 ## Use the Python client
 
 The repository includes a thin, source-independent Python client for `bcast.package/0.1.0`. It reads local BCAST package JSON, validates the public schema and deterministic identity/structure invariants, retrieves canonical object records, and lists direct structural children. It does not contact source providers, acquire licensed material, invoke private compiler services, or require the proprietary BCAST corpus.
