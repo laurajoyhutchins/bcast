@@ -6,7 +6,7 @@ BCAST is a provider-neutral representation and interface layer for compiled buil
 source providers -> private lawful acquisition/review -> public BCAST software/compiler -> rights-scoped packages -> downstream tools
 ```
 
-This repository is the canonical home for reusable BCAST software. Today it has consumer and validation functionality; extraction of reusable compilation from the private producer is still pending. It contains no production regulatory corpus. See [Software/data ownership](docs/product-boundary.md).
+This repository is the canonical home for reusable BCAST software. It contains the canonical source-independent 0.2 package builder alongside its consumer and validation software. It contains no production regulatory corpus. See [Software/data ownership](docs/product-boundary.md).
 
 ## What BCAST is
 
@@ -35,7 +35,7 @@ The public surface contains or is intended to contain:
 - versioned package and API specifications;
 - stable identity and compatibility rules;
 - public client SDKs, CLI, and reference server;
-- reusable neutral-input compilation algorithms as they are safely extracted;
+- the provider-neutral 0.2 package builder and its deterministic identity and validation rules;
 - deterministic conformance tooling;
 - synthetic or clearly redistributable examples;
 - integration, security, contribution, and rights documentation.
@@ -57,7 +57,7 @@ This repository does not contain:
 - private review evidence;
 - live production acquisition orchestration, rights decisions, or restricted-source transformations.
 
-Reusable compilation and package semantics belong in this public repository. The current eCFR implementation has not yet been separated; that migration is explicitly tracked rather than claimed complete.
+Reusable compilation and package semantics belong in this public repository. The private eCFR adapter now delegates canonical package materialization to the public `build_package_v2` implementation. Source interpretation, fidelity checks and data custody remain private.
 
 The durable boundary is:
 
@@ -69,7 +69,7 @@ Except where explicitly stated otherwise, BCAST-authored material in this reposi
 
 This license applies only to material and rights that BCAST is authorized to license. It does not license or sublicense third-party building codes, standards, publisher content, provider data, or other source material referenced by BCAST.
 
-The license also does not apply to BCAST's proprietary compiled corpus, private compiler implementation, private provider mappings or adapters, production data, or other material that is not distributed as part of this repository under Apache-2.0.
+The license also does not apply to BCAST's proprietary compiled corpus, non-public source-specific implementations, private provider mappings or adapters, production data, or other material that is not distributed as part of this repository under Apache-2.0.
 
 Source publications remain subject to the copyright, licensing, access, and redistribution terms of their respective rights holders. See [`docs/source-and-rights.md`](docs/source-and-rights.md).
 

@@ -74,12 +74,12 @@ The API contract and public consumer stack deliberately do not standardize or im
 
 ## M4 — Reusable public package builder
 
-Status: planned; current bounded eCFR producer still mixes generic package construction with source-specific normalization in the private repository.
+Status: initial public builder and private eCFR consumer integrated. Public conformance and private synthetic tests exercise the contract. Production source retention and broader provider inputs remain separate evidence obligations.
 
-- Implement the smallest source-independent normalized publication input and deterministic 0.2.0 package builder needed to reproduce the accepted synthetic package and eCFR results.
+- Implemented: a source-independent normalized publication input and deterministic 0.2.0 package builder that reproduces the public synthetic materialization.
 - Keep canonical identity, content hashing, structural rules and public validation in the public software authority, not a duplicate private producer.
 - Demonstrate synthetic compilation with no private data, credentials or imports.
-- Migrate private ingestion to invoke the exact pinned public builder, prove source/package replay and failure equivalence, then remove duplicate private package assembly.
+- Integrated: private eCFR ingestion invokes an exact pinned public builder and no longer constructs canonical IDs locally. Preserve exact historical source replay and failure equivalence in private CI.
 - Keep acquisition, source-specific restricted mappings, production evidence, GCS retention, rights approval and corpus publication operations private.
 
 Do not introduce a general provider plugin framework or change a normative consumer contract unless a concrete demonstrated use case requires it.
