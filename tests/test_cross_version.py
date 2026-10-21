@@ -41,7 +41,9 @@ class MaintainedCompatibilityEvidenceTests(unittest.TestCase):
         old, new = self.legacy.as_dict(), self.current.as_dict()
         self.assertEqual(old["publication"]["family"], new["publication"]["family"])
         self.assertEqual(old["publication"]["edition"], new["publication"]["edition"])
-        self.assertNotEqual(old["publication"]["publication_id"], new["publication"]["publication_id"])
+        self.assertNotEqual(
+            old["publication"]["publication_id"], new["publication"]["publication_id"]
+        )
         self.assertNotEqual(old["package_id"], new["package_id"])
         old_objects = {(x["kind"], x["locator"]): x for x in old["objects"]}
         new_objects = {(x["kind"], x["locator"]): x for x in new["objects"]}
@@ -61,9 +63,13 @@ class MaintainedCompatibilityEvidenceTests(unittest.TestCase):
             with self.subTest(contract=contract), serve(contract, [accepted, refused]) as origin:
                 client = BcastApiClient(origin, package_contract=contract)
                 self.assertEqual(accepted.as_dict(), client.get_package(accepted.package_id))
-                self.assertEqual(accepted.metadata(), client.get_package_metadata(accepted.package_id))
+                self.assertEqual(
+                    accepted.metadata(), client.get_package_metadata(accepted.package_id)
+                )
                 root = accepted.roots()[0]["object_id"]
-                self.assertEqual(accepted.children(root), client.get_children(accepted.package_id, root))
+                self.assertEqual(
+                    accepted.children(root), client.get_children(accepted.package_id, root)
+                )
                 with self.assertRaises(BcastApiProblem) as problem:
                     client.get_package(refused.package_id)
                 self.assertEqual("incompatible_version", problem.exception.code)
@@ -77,7 +83,10 @@ class MaintainedCompatibilityEvidenceTests(unittest.TestCase):
             ("bcast.package/0.1.0", self.legacy, "bcast.package/0.2.0"),
             ("bcast.package/0.2.0", self.current, "bcast.package/0.1.0"),
         ]:
-            with self.subTest(server_contract=server_contract), serve(server_contract, [server_package]) as origin:
+            with (
+                self.subTest(server_contract=server_contract),
+                serve(server_contract, [server_package]) as origin,
+            ):
                 wrong = BcastApiClient(origin, package_contract=client_contract)
                 with self.assertRaises(BcastApiProtocolError):
                     wrong.get_package(server_package.package_id)

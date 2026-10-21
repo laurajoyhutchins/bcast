@@ -12,19 +12,24 @@ INDEX = ROOT / "spec" / "contract-index.json"
 
 class PublicBoundaryTests(unittest.TestCase):
     def test_current_public_shapes_are_allowed(self):
-        self.assertEqual([], boundary_violations([
-            ".github/workflows/conformance.yml",
-            "README.md",
-            "conformance/check_public_boundary.py",
-            "docs/product-boundary.md",
-            "examples/synthetic/README.md",
-            "examples/synthetic/valid/package-0.1.0.json",
-            "pyproject.toml",
-            "spec/package-0.1.0.md",
-            "src/bcast/package.py",
-            "tests/test_client.py",
-            "tools/check.py",
-        ]))
+        self.assertEqual(
+            [],
+            boundary_violations(
+                [
+                    ".github/workflows/conformance.yml",
+                    "README.md",
+                    "conformance/check_public_boundary.py",
+                    "docs/product-boundary.md",
+                    "examples/synthetic/README.md",
+                    "examples/synthetic/valid/package-0.1.0.json",
+                    "pyproject.toml",
+                    "spec/package-0.1.0.md",
+                    "src/bcast/package.py",
+                    "tests/test_client.py",
+                    "tools/check.py",
+                ]
+            ),
+        )
 
     def test_private_implementation_and_data_shapes_are_rejected(self):
         paths = [

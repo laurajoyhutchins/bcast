@@ -71,7 +71,9 @@ class ClientTests(unittest.TestCase):
     def test_wrong_identity_is_rejected(self):
         candidate = self.load_fixture()
         candidate["package_id"] = f"bcastpkg:sha256:{'0' * 64}"
-        with self.assertRaisesRegex(PackageValidationError, "package_id does not match canonical package identity"):
+        with self.assertRaisesRegex(
+            PackageValidationError, "package_id does not match canonical package identity"
+        ):
             validate_package(candidate)
 
     def test_missing_parent_is_rejected(self):
@@ -100,7 +102,9 @@ class ClientTests(unittest.TestCase):
         root_id = candidate["objects"][0]["object_id"]
         section_id = candidate["objects"][1]["object_id"]
         second = {
-            "object_id": stable_id("bcastobj", {"kind": "section", "locator": "1.0", "publication_id": publication_id}),
+            "object_id": stable_id(
+                "bcastobj", {"kind": "section", "locator": "1.0", "publication_id": publication_id}
+            ),
             "kind": "section",
             "locator": "1.0",
             "parent_id": root_id,
@@ -108,7 +112,10 @@ class ClientTests(unittest.TestCase):
             "assurance": "reviewed",
         }
         grandchild = {
-            "object_id": stable_id("bcastobj", {"kind": "paragraph", "locator": "1.1.a", "publication_id": publication_id}),
+            "object_id": stable_id(
+                "bcastobj",
+                {"kind": "paragraph", "locator": "1.1.a", "publication_id": publication_id},
+            ),
             "kind": "paragraph",
             "locator": "1.1.a",
             "parent_id": section_id,
@@ -118,7 +125,9 @@ class ClientTests(unittest.TestCase):
         candidate["objects"].extend([second, grandchild])
         package = BcastPackage.from_mapping(candidate)
         children = package.children(root_id)
-        self.assertEqual(sorted([section_id, second["object_id"]]), [item["object_id"] for item in children])
+        self.assertEqual(
+            sorted([section_id, second["object_id"]]), [item["object_id"] for item in children]
+        )
         self.assertNotIn(grandchild["object_id"], [item["object_id"] for item in children])
 
     def test_cli_validate_and_get_use_only_local_package(self):

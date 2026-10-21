@@ -7,7 +7,13 @@ from typing import Any, Mapping
 
 from jsonschema import Draft202012Validator
 
-from .identifiers import materialized_package_id, package_id, publication_id, publication_id_v2, regulatory_object_id
+from .identifiers import (
+    materialized_package_id,
+    package_id,
+    publication_id,
+    publication_id_v2,
+    regulatory_object_id,
+)
 
 
 class PackageValidationError(ValueError):
@@ -29,7 +35,9 @@ def load_schema(version: str = "bcast.package/0.1.0") -> dict[str, Any]:
 def _schema_errors(package: Any, version: str) -> list[str]:
     validator = Draft202012Validator(load_schema(version))
     errors = []
-    for failure in sorted(validator.iter_errors(package), key=lambda item: list(item.absolute_path)):
+    for failure in sorted(
+        validator.iter_errors(package), key=lambda item: list(item.absolute_path)
+    ):
         location = ".".join(str(part) for part in failure.absolute_path) or "<root>"
         errors.append(f"schema {location}: {failure.message}")
     return errors
@@ -41,12 +49,16 @@ def _semantic_errors(package: Mapping[str, Any]) -> list[str]:
     version = package["schema_version"]
     if version == "bcast.package/0.2.0":
         expected_publication_id = publication_id_v2(
-            publication["namespace"], publication["family"], publication["edition"],
+            publication["namespace"],
+            publication["family"],
+            publication["edition"],
             publication.get("revision"),
         )
         for field in ("edition", "revision"):
             value = publication.get(field)
-            if value is not None and (value != value.strip() or unicodedata.normalize("NFC", value) != value):
+            if value is not None and (
+                value != value.strip() or unicodedata.normalize("NFC", value) != value
+            ):
                 failures.append(f"publication.{field} must be trimmed NFC Unicode")
     else:
         expected_publication_id = publication_id(
@@ -81,7 +93,9 @@ def _semantic_errors(package: Mapping[str, Any]) -> list[str]:
         by_id[object_id] = item
         coordinate = (item["kind"], item["locator"])
         if coordinate in coordinates:
-            failures.append(f"duplicate object coordinate: kind={item['kind']} locator={item['locator']}")
+            failures.append(
+                f"duplicate object coordinate: kind={item['kind']} locator={item['locator']}"
+            )
         coordinates.add(coordinate)
 
     for item in package["objects"]:

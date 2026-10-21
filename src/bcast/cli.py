@@ -12,7 +12,9 @@ from .validation import PACKAGE_CONTRACTS, PackageValidationError
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="bcast", description="Read and validate public BCAST packages.")
+    parser = argparse.ArgumentParser(
+        prog="bcast", description="Read and validate public BCAST packages."
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     validate = subparsers.add_parser("validate", help="Validate a local BCAST package")
@@ -29,11 +31,15 @@ def _parser() -> argparse.ArgumentParser:
     tree = subparsers.add_parser("tree", help="Print the local public structural tree")
     tree.add_argument("package")
 
-    serve = subparsers.add_parser("serve", help="Serve validated local packages through bcast.api/0.1.0")
+    serve = subparsers.add_parser(
+        "serve", help="Serve validated local packages through bcast.api/0.1.0"
+    )
     serve.add_argument("packages", nargs="+")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
-    serve.add_argument("--package-contract", choices=PACKAGE_CONTRACTS, default=PACKAGE_CONTRACTS[0])
+    serve.add_argument(
+        "--package-contract", choices=PACKAGE_CONTRACTS, default=PACKAGE_CONTRACTS[0]
+    )
 
     api = subparsers.add_parser("api", help="Call a bcast.api/0.1.0 endpoint")
     api.add_argument("base_url")
@@ -69,8 +75,7 @@ def _print_tree(package: BcastPackage) -> None:
         suffix = f" {label}" if label else ""
         print(f"{'  ' * depth}{record['kind']} {record['locator']}{suffix}")
         pending.extend(
-            (child, depth + 1)
-            for child in reversed(package.children(record["object_id"]))
+            (child, depth + 1) for child in reversed(package.children(record["object_id"]))
         )
 
 
@@ -78,7 +83,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         if args.command == "serve":
-            serve_paths(args.packages, host=args.host, port=args.port, package_contract=args.package_contract)
+            serve_paths(
+                args.packages,
+                host=args.host,
+                port=args.port,
+                package_contract=args.package_contract,
+            )
             return 0
         if args.command == "api":
             client = BcastApiClient(args.base_url, package_contract=args.package_contract)
@@ -102,6 +112,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif args.command == "tree":
             _print_tree(package)
         return 0
-    except (PackageValidationError, ObjectNotFoundError, ObjectCoordinateNotFoundError, BcastApiError, OSError, json.JSONDecodeError) as exc:
+    except (
+        PackageValidationError,
+        ObjectNotFoundError,
+        ObjectCoordinateNotFoundError,
+        BcastApiError,
+        OSError,
+        json.JSONDecodeError,
+    ) as exc:
         print(f"ERROR {exc}", file=sys.stderr)
         return 1

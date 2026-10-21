@@ -39,7 +39,9 @@ class PackageConformanceTests(unittest.TestCase):
         candidate["package_id"] = f"bcastpkg:sha256:{'0' * 64}"
         with self.assertRaises(PackageValidationError) as captured:
             validate_package(candidate)
-        self.assertIn("package_id does not match canonical package identity", str(captured.exception))
+        self.assertIn(
+            "package_id does not match canonical package identity", str(captured.exception)
+        )
 
     def test_missing_parent_fixture_is_rejected(self) -> None:
         candidate = load_json(INVALID_MISSING_PARENT_PATH)
@@ -75,17 +77,17 @@ class ApiContractTests(unittest.TestCase):
 
     def test_broken_external_schema_reference_is_rejected(self) -> None:
         document = deepcopy(self.api)
-        document["paths"]["/packages/{package_id}"]["get"]["responses"]["200"][
-            "content"
-        ]["application/json"]["schema"]["$ref"] = "../schemas/does-not-exist.json"
+        document["paths"]["/packages/{package_id}"]["get"]["responses"]["200"]["content"][
+            "application/json"
+        ]["schema"]["$ref"] = "../schemas/does-not-exist.json"
         with self.assertRaisesRegex(ValueError, "missing or out-of-tree reference target"):
             validate_openapi_document(document, API_PATH)
 
     def test_out_of_tree_reference_is_rejected(self) -> None:
         document = deepcopy(self.api)
-        document["components"]["schemas"]["PackageMetadata"]["properties"][
-            "publication"
-        ]["$ref"] = "../../../README.md"
+        document["components"]["schemas"]["PackageMetadata"]["properties"]["publication"][
+            "$ref"
+        ] = "../../../README.md"
         with self.assertRaisesRegex(ValueError, "missing or out-of-tree reference target"):
             validate_openapi_document(document, API_PATH)
 
@@ -107,7 +109,14 @@ class ApiContractTests(unittest.TestCase):
         self.assertEqual(expected_paths, set(self.api["paths"]))
 
         http_methods = {
-            "get", "put", "post", "delete", "patch", "options", "head", "trace",
+            "get",
+            "put",
+            "post",
+            "delete",
+            "patch",
+            "options",
+            "head",
+            "trace",
         }
         for path_item in self.api["paths"].values():
             methods = {key.lower() for key in path_item if key.lower() in http_methods}
@@ -120,17 +129,17 @@ class ApiContractTests(unittest.TestCase):
             package_response["content"]["application/json"]["schema"]["$ref"],
         )
 
-        object_response = self.api["paths"][
-            "/packages/{package_id}/objects/{object_id}"
-        ]["get"]["responses"]["200"]
+        object_response = self.api["paths"]["/packages/{package_id}/objects/{object_id}"]["get"][
+            "responses"
+        ]["200"]
         self.assertEqual(
             "../schemas/package-0.1.0.schema.json#/properties/objects/items",
             object_response["content"]["application/json"]["schema"]["$ref"],
         )
 
-        children_schema = self.api["paths"][
-            "/packages/{package_id}/objects/{object_id}/children"
-        ]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+        children_schema = self.api["paths"]["/packages/{package_id}/objects/{object_id}/children"][
+            "get"
+        ]["responses"]["200"]["content"]["application/json"]["schema"]
         self.assertEqual("array", children_schema["type"])
         self.assertEqual(
             "../schemas/package-0.1.0.schema.json#/properties/objects/items",
@@ -161,8 +170,14 @@ class ApiContractTests(unittest.TestCase):
             operation_surface.append(path_item["get"]["operationId"])
         encoded = " ".join(operation_surface).lower()
         for forbidden in (
-            "provider", "ingest", "normalize", "compile", "review",
-            "entitlement", "credential", "materialize",
+            "provider",
+            "ingest",
+            "normalize",
+            "compile",
+            "review",
+            "entitlement",
+            "credential",
+            "materialize",
         ):
             self.assertNotIn(forbidden, encoded)
 
