@@ -204,3 +204,7 @@ Validation is deliberately source-independent. It checks the public package cont
 - [`SECURITY.md`](SECURITY.md) — security and sensitive-data reporting
 
 The archived `building-code-ast-alpha` repository is historical research and implementation state. It is not an active upstream branch of BCAST and is not migrated wholesale into this repository.
+
+## Related public product
+
+[**Building Code Map**](https://github.com/laurajoyhutchins/building-code-map) determines which codes may apply to a project, including jurisdictional evidence and unresolved conditions. BCAST supplies structured regulatory publication representations and does **not** determine adoption or project applicability. Their contracts and releases remain separate; neither requires the other's runtime.
