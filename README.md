@@ -6,7 +6,7 @@ BCAST is a provider-neutral representation and interface layer for compiled buil
 source providers -> private lawful acquisition/review -> public BCAST software/compiler -> rights-scoped packages -> downstream tools
 ```
 
-This repository is the canonical home for reusable BCAST software. Today it has consumer and validation functionality; extraction of reusable compilation from the private producer is still pending. It contains no production regulatory corpus. See [Software/data ownership](docs/product-boundary.md).
+This repository is the canonical home for reusable BCAST software. It has consumer, validation, and source-independent 0.2.0 compilation functionality. The private eCFR producer has not yet cut over to the public builder; this remains tracked in issue #46. It contains no production regulatory corpus. See [Software/data ownership](docs/product-boundary.md).
 
 ## What BCAST is
 
@@ -35,7 +35,7 @@ The public surface contains or is intended to contain:
 - versioned package and API specifications;
 - stable identity and compatibility rules;
 - public client SDKs, CLI, and reference server;
-- reusable neutral-input compilation algorithms as they are safely extracted;
+- source-independent 0.2.0 package construction from normalized publication and object coordinates;
 - deterministic conformance tooling;
 - synthetic or clearly redistributable examples;
 - integration, security, contribution, and rights documentation.
@@ -57,7 +57,7 @@ This repository does not contain:
 - private review evidence;
 - live production acquisition orchestration, rights decisions, or restricted-source transformations.
 
-Reusable compilation and package semantics belong in this public repository. The current eCFR implementation has not yet been separated; that migration is explicitly tracked rather than claimed complete.
+Reusable compilation and package semantics belong in this public repository. The neutral-input package builder is implemented; private source adaptation and final removal of private package assembly are not yet cut over and remain tracked in issue #46.
 
 The durable boundary is:
 
@@ -78,6 +78,33 @@ Source publications remain subject to the copyright, licensing, access, and redi
 BCAST is public and pre-1.0. Draft package and read-only API contracts exist, but no production BCAST service has been deployed and no tagged BCAST standards release exists yet. Compatibility rules may evolve before 1.0 only through explicit versioned changes.
 
 The repository history and public surface were reviewed for publication safety before the public cutover on August 26, 2026. Apache-2.0 is the selected license for BCAST-authored public-repository material. The completed publication record is in [`docs/publication-checklist.md`](docs/publication-checklist.md).
+
+## Build a neutral 0.2.0 package
+
+`bcast.compile_package` takes already-interpreted provider-neutral coordinates,
+content, status and citations. It owns ID derivation, parent-link resolution,
+canonical ordering, materialization hashing and public validation. Source
+parsers and rights decisions stay outside this function.
+
+```python
+from bcast import compile_package
+
+package = compile_package(
+    namespace="codes.example", family="example-code", edition="2026",
+    package_version="2026.synthetic.1",
+    objects=[
+        {"kind": "document", "locator": "root", "status": "resolved"},
+        {"kind": "section", "locator": "1.1", "status": "resolved",
+         "parent": {"kind": "document", "locator": "root"},
+         "content": {"media_type": "text/plain", "text": "Synthetic example."}},
+    ],
+)
+```
+
+Only project-authored synthetic records should be checked into public examples.
+A valid package proves neither legal source fidelity nor redistribution rights.
+The full private eCFR cutover is still open under
+[issue #46](https://github.com/laurajoyhutchins/bcast/issues/46).
 
 ## Use the Python client
 
