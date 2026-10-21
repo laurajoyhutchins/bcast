@@ -37,11 +37,11 @@ Use Python 3.12, then install the public client and pinned development tools:
 
 ```bash
 python -m pip install -e '.[dev]' -r conformance/requirements.txt
-python tools/check.py --preflight  # read-only Ruff format and lint
+python tools/check.py --preflight  # read-only Ruff lint
 python tools/check.py              # same offline checks as CI
 ```
 
-To apply safe style changes deliberately, use `python tools/check.py --preflight --fix-style` and review the diff before committing. The complete suite also enforces the public/private source boundary, clients, both public package versions and synthetic contracts. It does not verify live private acquisitions.
+Full-tree formatting can be inspected separately with `python tools/check.py --preflight --check-format`; legacy formatting is not part of the initial CI gate. To apply safe style changes deliberately, use `python tools/check.py --preflight --fix-style` and review the diff before committing. The complete suite also enforces the public/private source boundary, clients, both public package versions and synthetic contracts. It does not verify live private acquisitions.
 
 ## Contributor preflight
 
