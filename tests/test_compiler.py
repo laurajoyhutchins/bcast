@@ -15,6 +15,9 @@ FIXTURE = Path(__file__).resolve().parents[1] / "examples/synthetic/valid/packag
 
 def normalized_fixture():
     package = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    # The public fixture deliberately uses editorial enumeration order, while
+    # the package builder emits canonical sorted records.
+    package["objects"].sort(key=lambda record: record["object_id"])
     by_id = {record["object_id"]: record for record in package["objects"]}
     metadata = {key: value for key, value in package["publication"].items() if key != "publication_id"}
     drafts = []
