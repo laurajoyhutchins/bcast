@@ -21,12 +21,6 @@ jobs:
       - name: Enforce public repository boundary
         run: python conformance/check_public_boundary.py
       - name: Install public client and conformance dependencies
-        run: python -m pip install --disable-pip-version-check -e . -r conformance/requirements.txt
-      - name: Run conformance regression tests
-        run: python -m unittest conformance.test_conformance conformance.test_package_v2 conformance.test_public_boundary
-      - name: Run public client tests
-        run: python -m unittest discover -s tests
-      - name: Validate synthetic package
-        run: python conformance/validate.py spec/schemas/package-0.1.0.schema.json examples/synthetic/valid/package-0.1.0.json
-      - name: Validate v0.2 synthetic package
-        run: python conformance/validate.py spec/schemas/package-0.2.0.schema.json examples/synthetic/valid/package-0.2.0.json
+        run: python -m pip install --disable-pip-version-check -e '.[dev]' -r conformance/requirements.txt
+      - name: Run repository lint, conformance, clients and synthetic contracts
+        run: python tools/check.py
