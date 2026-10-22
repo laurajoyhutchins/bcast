@@ -4,7 +4,7 @@ BCAST follows the software/data ownership model established for Building Code Ma
 
 > **Open reusable software. Controlled regulatory evidence and production corpus.**
 
-## Software authority: public `bcast`
+## Software authority: public `regulatory-package-toolkit`
 
 This repository is the sole source of truth for reusable BCAST software and its semantics:
 
@@ -16,7 +16,7 @@ This repository is the sole source of truth for reusable BCAST software and its 
 
 A public software checkout must be testable and useful with synthetic examples and, where rights permit, user-supplied lawful input. It must not need proprietary data, private credentials, or the private repository to pass its ordinary tests.
 
-## Regulatory-data authority: private `bcast-private`
+## Regulatory-data authority: private `regulatory-source-operations`
 
 The private repository owns acquisition operations and data custody:
 
