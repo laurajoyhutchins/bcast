@@ -1,4 +1,4 @@
-# BCAST
+# Regulatory Package Toolkit (BCAST)
 
 BCAST is a provider-neutral representation and interface layer for compiled building-code information.
 
