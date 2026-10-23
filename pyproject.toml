@@ -19,6 +19,7 @@ classifiers = [
 
 [project.scripts]
 bcast = "bcast.cli:main"
+bcast-rust = "bcast.rust_codegen:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -27,7 +28,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-bcast = ["schemas/*.json", "py.typed"]
+bcast = ["schemas/*.json", "py.typed", "rust_runtime.rs"]
 
 [project.optional-dependencies]
 dev = ["ruff==0.13.2"]
