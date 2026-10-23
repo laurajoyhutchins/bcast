@@ -53,7 +53,5 @@ jobs:
         run: python -m pip install --disable-pip-version-check -e '.[dev]' -r conformance/requirements.txt
       - name: Require Rust toolchain for generated-rule verification
         run: rustc --version
-      - name: Show new-code formatting differences for review
-        run: python -m ruff format --diff src/bcast/rust_codegen.py tests/test_rust_codegen.py || true
       - name: Run repository lint, conformance, clients and synthetic contracts
         run: python tools/check.py
