@@ -141,11 +141,11 @@ mod combined_tests {
         let found=evaluate_combined("study.example","fictional-electrical","2017","",&f(true,40,true)).unwrap();
         assert_eq!(found.len(),3);
         assert_eq!(found[0].decision,Decision::Satisfied);
-        assert_eq!(found[1].decision,Decision::Satisfied);
-        assert_eq!(found[2].decision,Decision::Permitted);
+        assert_eq!(found.iter().find(|x| x.rule_id == "new-threshold").unwrap().decision,Decision::Satisfied);
+        assert_eq!(found.iter().find(|x| x.rule_id == "new-permission").unwrap().decision,Decision::Permitted);
         let failed=evaluate_combined("study.example","fictional-electrical","2017","",&f(true,39,false)).unwrap();
-        assert_eq!(failed[1].decision,Decision::Violated);
-        assert_eq!(failed[2].decision,Decision::PermissionNotEstablished);
+        assert_eq!(failed.iter().find(|x| x.rule_id == "new-threshold").unwrap().decision,Decision::Violated);
+        assert_eq!(failed.iter().find(|x| x.rule_id == "new-permission").unwrap().decision,Decision::PermissionNotEstablished);
         assert!(evaluate_combined("study.example","fictional-electrical","2020","",&f(true,40,true)).is_none());
     }
 }
@@ -154,6 +154,6 @@ mod combined_tests {
     let out=Command::new("rustc").args(["--edition=2021","--test"]).arg(&source).arg("-o").arg(&binary).output().unwrap();
     assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
     let out=Command::new(&binary).output().unwrap();
-    assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
+    assert!(out.status.success(),"stdout: {} stderr: {}",String::from_utf8_lossy(&out.stdout),String::from_utf8_lossy(&out.stderr));
     fs::remove_dir_all(&dir).unwrap();
 }
