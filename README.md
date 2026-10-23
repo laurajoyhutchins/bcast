@@ -112,6 +112,10 @@ fidelity, authorization, retention and rights review remain separate private
 data operations. A validated package is not a legal certification or license
 to redistribute regulatory content.
 
+## Experimental model-code-to-Rust rule transpiler
+
+The public source-independent `bcast-rust` command lowers **reviewed, source-pinned** machine-readable provisions into standalone Rust, across independently identified code families and editions. It preserves unknown facts, exceptions, unsupported objects and edition specificity. It does not infer legal meaning from source text or claim whole-code coverage. See [Rust rule transpiler](docs/rust-rule-transpiler.md) and the wholly synthetic [three-edition fixture](examples/synthetic/reviewed-rules.json).
+
 ## Use the Python client
 
 The repository includes a thin, source-independent Python client for `bcast.package/0.1.0`. It reads local BCAST package JSON, validates the public schema and deterministic identity/structure invariants, retrieves canonical object records, and lists direct structural children. It does not contact source providers, acquire licensed material, invoke private compiler services, or require the proprietary BCAST corpus.
