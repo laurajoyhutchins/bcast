@@ -74,12 +74,12 @@ class RuleCodegenTests(unittest.TestCase):
                 transpile_rules(self.input) + "\n" + SMOKE.read_text(encoding="utf-8"),
                 encoding="utf-8",
             )
-            subprocess.run(
+            compile_result = subprocess.run(
                 ["rustc", "--edition=2021", "--test", str(src), "-o", str(binary)],
-                check=True,
                 capture_output=True,
                 text=True,
             )
+            self.assertEqual(compile_result.returncode, 0, compile_result.stderr)
             subprocess.run([str(binary)], check=True, capture_output=True, text=True)
 
 
