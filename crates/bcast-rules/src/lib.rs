@@ -1,5 +1,7 @@
 //! Native Rust compiler for reviewed, source-independent BCAST rule IR.
 //! No legal text extraction, edition adoption or interpretation occurs here.
+mod sbvr;
+pub use sbvr::{compile_combined, PROPOSAL_CONTRACT};
 use serde::Deserialize;
 use std::collections::BTreeSet;
 use std::error::Error;

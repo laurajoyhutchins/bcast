@@ -22,7 +22,12 @@ fn run(input: &str, output: &str) -> Result<(), Box<dyn std::error::Error>> {
         return Err("input exceeds 4 MB".into());
     }
     let document = fs::read_to_string(input)?;
-    let generated = bcast_rules::compile(&document)?;
+    let contract: serde_json::Value = serde_json::from_str(&document)?;
+    let generated = if contract["schema_version"] == bcast_rules::PROPOSAL_CONTRACT {
+        bcast_rules::compile_combined(&document)?
+    } else {
+        bcast_rules::compile(&document)?
+    };
     fs::write(output, generated)?;
     Ok(())
 }

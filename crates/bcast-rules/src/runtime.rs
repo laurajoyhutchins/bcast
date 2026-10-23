@@ -8,6 +8,7 @@ pub enum Truth { Yes, No, Unknown }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Decision {
     Satisfied, Violated, NotApplicable, Excepted, InsufficientFacts, Unsupported,
+    Permitted, PermissionNotEstablished,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -134,6 +135,34 @@ pub fn decide(applicable: Truth, excepted: Truth, required: Truth) -> Decision {
             Truth::No => match required {
                 Truth::Yes => Decision::Satisfied,
                 Truth::No => Decision::Violated,
+                Truth::Unknown => Decision::InsufficientFacts,
+            },
+        },
+    }
+}
+
+
+// The predicate for a prohibition denotes a forbidden action, not a required one.
+pub fn decide_prohibition(applicable: Truth, excepted: Truth, forbidden: Truth) -> Decision {
+    match decide(applicable, excepted, not(forbidden)) {
+        Decision::Satisfied => Decision::Satisfied,
+        Decision::Violated => Decision::Violated,
+        other => other,
+    }
+}
+
+// A permission is NOT an obligation. Failure to establish permission is not
+// automatically a violation of any code provision.
+pub fn decide_permission(applicable: Truth, excepted: Truth, allowed: Truth) -> Decision {
+    match applicable {
+        Truth::No => Decision::NotApplicable,
+        Truth::Unknown => Decision::InsufficientFacts,
+        Truth::Yes => match excepted {
+            Truth::Yes => Decision::PermissionNotEstablished,
+            Truth::Unknown => Decision::InsufficientFacts,
+            Truth::No => match allowed {
+                Truth::Yes => Decision::Permitted,
+                Truth::No => Decision::PermissionNotEstablished,
                 Truth::Unknown => Decision::InsufficientFacts,
             },
         },

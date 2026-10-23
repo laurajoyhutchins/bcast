@@ -114,7 +114,7 @@ to redistribute regulatory content.
 
 ## Native Rust model-code rule compiler
 
-The Rust-native `bcast-rust` CLI compiles **reviewed, source-pinned** rule IR into standalone, dependency-free Rust across independently identified code families and editions. Validation, lowering and evaluation semantics live in Rust; the existing Python BCAST package client is independent. No code text or interpretation is inferred. See [Native Rust compiler](docs/rust-rule-transpiler.md) and the synthetic [three-edition fixture](examples/synthetic/reviewed-rules.json).
+The Rust-native `bcast-rust` CLI compiles **reviewed, source-pinned** rule IR into standalone, dependency-free Rust across independently identified code families and editions. Validation, lowering and evaluation semantics live in Rust; the existing Python BCAST package client is independent. No code text or interpretation is inferred. The same crate now admits bounded, source-identified SBVR-inspired proposal batches and composes admitted predicates with existing rules, with explicit unresolved accounting. See [Native Rust compiler](docs/rust-rule-transpiler.md), the [proposal schema](spec/schemas/sbvr-proposal-batch-0.1.0.schema.json) and the synthetic [three-edition fixture](examples/synthetic/reviewed-rules.json).
 
 ## Use the Python client
 

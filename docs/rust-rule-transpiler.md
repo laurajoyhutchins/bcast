@@ -76,3 +76,47 @@ BCAST owns the reusable compiler. BCM owns jurisdictional adoption and
 project applicability. Arcata consumes predicates and separately verified
 engineering facts. No duplicate canonical rule compiler should be introduced
 in these consumers.
+
+## Bounded source passages and SBVR-inspired semantic admission
+
+The optional `bcast.sbvr_proposal_batch/0.1.0` input is validated against the
+[JSON Schema](../spec/schemas/sbvr-proposal-batch-0.1.0.schema.json) and by
+`bcast_rules::compile_combined` in the **same Rust crate**. It contains a
+validated `bcast.rule_ir/0.1.0` baseline, one exact identified source edition,
+bounded extracted passages, classified proposal records and a complete
+accounting summary.
+
+- Every passage has an exact whole-PDF SHA-256 anchor, 1-based PDF page, a
+  four-coordinate bounded rectangle in thousandths of a PDF point, section
+  locator, BCAST publication/object identities and the SHA-256 of its exact
+  UTF-8 extracted text. The digest is verified from supplied bytes; the whole
+  PDF hash can be verified only by the private extractor with actual PDF bytes.
+- Passage identity is `bcastpassage:sha256:<hex>`, hashing canonical sorted-key
+  JSON of `artifact_sha256`, `source_object_id`, `pdf_page`,
+  `bbox_millipoints` and `text_sha256`. A tampered locator, page,
+  rectangle or text cannot pass Rust admission unchanged.
+- Every extracted passage must be classified by at least one unique proposal.
+  No orphan or duplicate IDs, no missing classifications and no mismatched
+  `admitted/unresolved/rejected` accounting are accepted. An admitted
+  predicate must carry a review record and zero unresolved dependencies.
+- `obligation` evaluates a required predicate, `prohibition` evaluates a
+  forbidden predicate, and `permission` reports `Permitted` or
+  `PermissionNotEstablished`, **never treating absent permission as a
+  violation**. Conditions and exceptions are three-valued. Unresolved or
+  rejected proposals produce no predicates.
+- A batch is compiled using `bcast-rust batch.json combined.rs` just as the
+  original rule IR was compiled. `evaluate_combined` returns existing
+  baseline findings plus newly admitted findings in the **same generated Rust
+  compilation unit**. Source excerpts are not emitted into the generated code.
+
+The proposal format uses OMG SBVR-style notions (modality, proposition,
+condition, exception and unresolved meaning) as a design reference. It does
+**not** assert full OMG SBVR conformance, XMI interoperability or legal
+interpretive authority. It is intentionally a bounded contract, not a second
+rules engine. `review_ref` is a required asserted record, **not** verified
+review authorization; private admission policy still determines which
+reviewers may approve source-derived interpretations.
+
+Never commit protected extracted text, PDF bytes, or raw proposal batches
+containing code passages to public Git. Private source operations must verify
+the PDF digest, bounding boxes and correspondence and retain private evidence.
