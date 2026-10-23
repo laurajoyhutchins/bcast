@@ -51,5 +51,7 @@ jobs:
           python-version: "3.12"
       - name: Install public client, conformance and pinned lint tools
         run: python -m pip install --disable-pip-version-check -e '.[dev]' -r conformance/requirements.txt
+      - name: Require Rust toolchain for generated-rule verification
+        run: rustc --version
       - name: Run repository lint, conformance, clients and synthetic contracts
         run: python tools/check.py
