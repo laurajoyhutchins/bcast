@@ -12,9 +12,7 @@ import unittest
 
 from bcast.rust_codegen import RuleCompilationError, main, transpile_rules
 
-FIXTURE = (
-    Path(__file__).resolve().parents[1] / "examples/synthetic/reviewed-rules.json"
-)
+FIXTURE = Path(__file__).resolve().parents[1] / "examples/synthetic/reviewed-rules.json"
 SMOKE = Path(__file__).with_name("rust_codegen_smoke.rs")
 
 
