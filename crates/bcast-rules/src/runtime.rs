@@ -1,29 +1,19 @@
-// Generated rule sets use this source-independent evaluation kernel.
-// No source text, legal authority, or edition selection is inferred here.
+// Public, source-independent evaluation kernel. Embedded into generated Rust.
+// Source extraction, publication adoption and legal interpretation are external.
 use std::cmp::Ordering;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Truth {
-    Yes,
-    No,
-    Unknown,
-}
+pub enum Truth { Yes, No, Unknown }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Decision {
-    Satisfied,
-    Violated,
-    NotApplicable,
-    Excepted,
-    InsufficientFacts,
-    Unsupported,
+    Satisfied, Violated, NotApplicable, Excepted, InsufficientFacts, Unsupported,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Value<'a> {
     Bool(bool),
     Text(&'a str),
-    // Fixed-point decimal. No binary floating-point rounding.
     Quantity { mantissa: i128, scale: u32, unit: &'a str },
 }
 
@@ -59,7 +49,7 @@ pub struct Finding {
     pub decision: Decision,
 }
 
-// Missing, conflicting, and duplicate facts are all unknown, never false.
+// Duplicate facts fail closed even when duplicate values happen to agree.
 fn lookup<'a>(facts: &'a [Fact<'a>], name: &str) -> Option<Value<'a>> {
     let mut found = None;
     for fact in facts {
@@ -72,7 +62,7 @@ fn lookup<'a>(facts: &'a [Fact<'a>], name: &str) -> Option<Value<'a>> {
 }
 
 fn order_to_truth(found: Ordering, op: Op) -> Truth {
-    let yes = match op {
+    let matches = match op {
         Op::Eq => found == Ordering::Equal,
         Op::Ne => found != Ordering::Equal,
         Op::Lt => found == Ordering::Less,
@@ -80,23 +70,21 @@ fn order_to_truth(found: Ordering, op: Op) -> Truth {
         Op::Gt => found == Ordering::Greater,
         Op::Ge => found != Ordering::Less,
     };
-    if yes { Truth::Yes } else { Truth::No }
+    if matches { Truth::Yes } else { Truth::No }
 }
 
 fn compare_fixed(a: i128, a_scale: u32, b: i128, b_scale: u32) -> Option<Ordering> {
     if a_scale > 18 || b_scale > 18 { return None; }
-    let aa = a.checked_mul(10_i128.checked_pow(b_scale)?)?;
-    let bb = b.checked_mul(10_i128.checked_pow(a_scale)?)?;
-    Some(aa.cmp(&bb))
+    let left = a.checked_mul(10_i128.checked_pow(b_scale)?)?;
+    let right = b.checked_mul(10_i128.checked_pow(a_scale)?)?;
+    Some(left.cmp(&right))
 }
 
 pub fn number(facts: &[Fact<'_>], key: &str, op: Op, n: i128, scale: u32, unit: &str) -> Truth {
     match lookup(facts, key) {
         Some(Value::Quantity { mantissa, scale: got_scale, unit: got_unit }) if got_unit == unit => {
-            match compare_fixed(mantissa, got_scale, n, scale) {
-                Some(order) => order_to_truth(order, op),
-                None => Truth::Unknown,
-            }
+            compare_fixed(mantissa, got_scale, n, scale)
+                .map_or(Truth::Unknown, |order| order_to_truth(order, op))
         }
         _ => Truth::Unknown,
     }
@@ -104,32 +92,36 @@ pub fn number(facts: &[Fact<'_>], key: &str, op: Op, n: i128, scale: u32, unit: 
 
 pub fn text(facts: &[Fact<'_>], key: &str, op: Op, expected: &str) -> Truth {
     match lookup(facts, key) {
-        Some(Value::Text(got)) => order_to_truth(got.cmp(expected), op),
+        Some(Value::Text(found)) => order_to_truth(found.cmp(expected), op),
         _ => Truth::Unknown,
     }
 }
 
 pub fn boolean(facts: &[Fact<'_>], key: &str, op: Op, expected: bool) -> Truth {
     match lookup(facts, key) {
-        Some(Value::Bool(got)) => order_to_truth(got.cmp(&expected), op),
+        Some(Value::Bool(found)) => order_to_truth(found.cmp(&expected), op),
         _ => Truth::Unknown,
     }
 }
 
 pub fn all(items: &[Truth]) -> Truth {
-    if items.iter().any(|v| *v == Truth::No) { Truth::No }
-    else if items.iter().any(|v| *v == Truth::Unknown) { Truth::Unknown }
+    if items.contains(&Truth::No) { Truth::No }
+    else if items.contains(&Truth::Unknown) { Truth::Unknown }
     else { Truth::Yes }
 }
 
 pub fn any(items: &[Truth]) -> Truth {
-    if items.iter().any(|v| *v == Truth::Yes) { Truth::Yes }
-    else if items.iter().any(|v| *v == Truth::Unknown) { Truth::Unknown }
+    if items.contains(&Truth::Yes) { Truth::Yes }
+    else if items.contains(&Truth::Unknown) { Truth::Unknown }
     else { Truth::No }
 }
 
 pub fn not(item: Truth) -> Truth {
-    match item { Truth::Yes => Truth::No, Truth::No => Truth::Yes, Truth::Unknown => Truth::Unknown }
+    match item {
+        Truth::Yes => Truth::No,
+        Truth::No => Truth::Yes,
+        Truth::Unknown => Truth::Unknown,
+    }
 }
 
 pub fn decide(applicable: Truth, excepted: Truth, required: Truth) -> Decision {

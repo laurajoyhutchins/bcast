@@ -112,9 +112,9 @@ fidelity, authorization, retention and rights review remain separate private
 data operations. A validated package is not a legal certification or license
 to redistribute regulatory content.
 
-## Experimental model-code-to-Rust rule transpiler
+## Native Rust model-code rule compiler
 
-The public source-independent `bcast-rust` command lowers **reviewed, source-pinned** machine-readable provisions into standalone Rust, across independently identified code families and editions. It preserves unknown facts, exceptions, unsupported objects and edition specificity. It does not infer legal meaning from source text or claim whole-code coverage. See [Rust rule transpiler](docs/rust-rule-transpiler.md) and the wholly synthetic [three-edition fixture](examples/synthetic/reviewed-rules.json).
+The Rust-native `bcast-rust` CLI compiles **reviewed, source-pinned** rule IR into standalone, dependency-free Rust across independently identified code families and editions. Validation, lowering and evaluation semantics live in Rust; the existing Python BCAST package client is independent. No code text or interpretation is inferred. See [Native Rust compiler](docs/rust-rule-transpiler.md) and the synthetic [three-edition fixture](examples/synthetic/reviewed-rules.json).
 
 ## Use the Python client
 
