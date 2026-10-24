@@ -88,6 +88,9 @@ fn combined_compilation_is_deterministic_and_omits_protected_text() {
     assert!(output.contains("pub fn evaluate_sbvr"));
     assert!(output.contains("pub fn decide_permission"));
     assert!(output.contains("SBVR_PASSAGE_COUNT: usize = 2"));
+    assert!(output.contains("SBVR_ADMITTED_COUNT: usize = 2"));
+    assert!(output.contains("SBVR_UNRESOLVED_COUNT: usize = 1"));
+    assert!(output.contains("SBVR_REJECTED_COUNT: usize = 0"));
     assert!(!output.contains("synthetic threshold passage"));
     assert!(!output.contains("synthetic unsupported passage"));
 }
@@ -107,6 +110,12 @@ fn source_anchors_types_dependencies_and_accounting_fail_closed() {
         ("missing review",Box::new(|d| {d["proposals"][0].as_object_mut().unwrap().remove("review");})),
         ("wrong operand type",Box::new(|d| d["proposals"][0]["predicate"]["value"] = json!({"text": 12}))),
         ("duplicate proposal",Box::new(|d| d["proposals"][1]["proposal_id"] = json!("new-threshold"))),
+        ("invalid unresolved condition",Box::new(|d| d["proposals"][2]["condition"] = json!({"fact":"x","op":"gt","value":{"bool":true}}))),
+        ("source/baseline conflict",Box::new(|d| d["baseline"]["editions"][0]["rules"][0]["source"]["text_sha256"] = json!("c".repeat(64)))),
+        ("duplicate dependency",Box::new(|d| {
+            let item=d["proposals"][0]["dependencies"][0].clone();
+            d["proposals"][0]["dependencies"].as_array_mut().unwrap().push(item);
+        })),
         ("unreviewed executable",Box::new(|d| d["proposals"][2]["predicate"] = json!({"fact":"x","op":"eq","value":{"bool":true}}))),
         ("unmatched edition",Box::new(|d| d["source"]["edition"] = json!("2020")))
     ];

@@ -171,9 +171,19 @@ fn count_proposals(doc: &ProposalBatch) -> Result<BTreeMap<String, Vec<&Proposal
         if !doc.passages.iter().any(|p| p.passage_id == proposal.passage_id) {
             return Err(fail("orphan proposal without extracted passage"));
         }
+        let mut dependency_ids = BTreeSet::new();
         for dep in &proposal.dependencies {
             checked_text(&dep.locator, "dependency.locator")?;
+            if !dependency_ids.insert(dep.locator.as_str()) {
+                return Err(fail("duplicate unresolved/resolved dependency locator"));
+            }
         }
+        // Validate ALL supplied semantic expressions, even those not admitted.
+        // An unresolved candidate must not become a hiding place for malformed
+        // operands and operator/unit mismatches.
+        if let Some(condition) = &proposal.condition { emit_expr(condition, 0)?; }
+        if let Some(exception) = &proposal.exception { emit_expr(exception, 0)?; }
+        if let Some(predicate) = &proposal.predicate { emit_expr(predicate, 0)?; }
         if proposal.disposition == Disposition::Admitted {
             if proposal.predicate.is_none() || proposal.reason.is_some() ||
                 proposal.dependencies.iter().any(|d| !d.resolved) {
@@ -273,7 +283,19 @@ pub fn compile_combined(input: &str) -> Result<String, CompileError> {
     for edition in baselines {
         if edition["publication"]["publication_id"] == doc.source.publication_id {
             if let Some(rules) = edition["rules"].as_array() {
-                for rule in rules { if let Some(id) = rule["id"].as_str() { known_baseline_ids.insert(id); } }
+                for rule in rules {
+                    if let Some(id) = rule["id"].as_str() { known_baseline_ids.insert(id); }
+                    if let (Some(object), Some(digest)) = (
+                        rule["source"]["object_id"].as_str(),
+                        rule["source"]["text_sha256"].as_str(),
+                    ) {
+                        for passage in doc.passages.iter().filter(|p| p.source_object_id == object) {
+                            if passage.text_sha256 != digest {
+                                return Err(fail("baseline and extracted passage text SHA-256 disagree"));
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -316,6 +338,6 @@ pub fn compile_combined(input: &str) -> Result<String, CompileError> {
              }}\n\
          }}\n",
         literal(&source.artifact_sha256),
-        doc.passages.len(), doc.proposals.len(), actual_unresolved
+        doc.passages.len(), doc.proposals.len(), actual_admitted, actual_unresolved, actual_rejected
     ))
 }
