@@ -81,10 +81,30 @@ fn compare_fixed(a: i128, a_scale: u32, b: i128, b_scale: u32) -> Option<Orderin
     Some(left.cmp(&right))
 }
 
+// Compare fixed-point quantities by exact rational unit factors.
+// All multiplications are checked: an unrepresentable comparison is Unknown,
+// never a guessed pass or fail.
+fn compare_quantity(
+    a: i128, a_scale: u32, a_unit: &str,
+    b: i128, b_scale: u32, b_unit: &str,
+) -> Option<Ordering> {
+    if a_scale > 18 || b_scale > 18 { return None; }
+    let first = unit_spec(a_unit)?;
+    let second = unit_spec(b_unit)?;
+    if first.dimension != second.dimension { return None; }
+    let lhs = a.checked_mul(first.numerator)?
+        .checked_mul(second.denominator)?
+        .checked_mul(10_i128.checked_pow(b_scale)?)?;
+    let rhs = b.checked_mul(second.numerator)?
+        .checked_mul(first.denominator)?
+        .checked_mul(10_i128.checked_pow(a_scale)?)?;
+    Some(lhs.cmp(&rhs))
+}
+
 pub fn number(facts: &[Fact<'_>], key: &str, op: Op, n: i128, scale: u32, unit: &str) -> Truth {
     match lookup(facts, key) {
-        Some(Value::Quantity { mantissa, scale: got_scale, unit: got_unit }) if got_unit == unit => {
-            compare_fixed(mantissa, got_scale, n, scale)
+        Some(Value::Quantity { mantissa, scale: got_scale, unit: got_unit }) => {
+            compare_quantity(mantissa, got_scale, got_unit, n, scale, unit)
                 .map_or(Truth::Unknown, |order| order_to_truth(order, op))
         }
         _ => Truth::Unknown,

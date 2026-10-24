@@ -40,6 +40,9 @@ fn rejects_unknown_fields_unreviewed_rules_bad_values_and_edition_aliasing() {
     let mut doc = parsed();
     doc["editions"][0]["rules"][0]["must"]["value"]["quantity"]["unit"] = json!("");
     must_fail(doc);
+    let mut doc = parsed();
+    doc["editions"][0]["rules"][0]["must"]["value"]["quantity"]["unit"] = json!("mysteryUnit");
+    must_fail(doc);
 
     let mut doc = parsed();
     doc["editions"][0]["rules"][0]["must"]["op"] = json!("inferred");

@@ -59,9 +59,9 @@ lawfully acquired PDFs / publisher sources
 The compiler is edition- and code-family-neutral: it never infers a specific
 code's rules or selects the latest edition. It requires an exact edition and
 revision. Unsupported source provisions are explicit; missing facts and
-duplicate facts fail closed. It uses bounded fixed-point numbers and explicit
-unit tokens with no implicit unit conversion. A unit string being syntactically
-valid does not prove UCUM dimensional compatibility.
+duplicate facts fail closed. It uses bounded fixed-point numbers and an explicit UCUM-compatible subset of
+unit symbols with exact rational conversions and dimensional validation. This
+is not a full UCUM grammar or a QUDT reasoner.
 
 The boundary remains **reviewed IR → Rust**, not PDF → trustworthy rules.
 Neither the public fixture's illustrative SHA strings nor a review reference
@@ -164,3 +164,26 @@ for computational consumers. They are not compliance APIs. Consumers should
 not collapse `Vec<Finding>` into a single pass/fail state. Normative,
 edition-wide completeness and authenticated reviewer approval are separate
 upstream gates and are not inferred from the absence of open questions.
+
+## Engineering unit semantics
+
+The compiler and its generated runtime share a **single Rust unit table**
+(`crates/bcast-rules/src/units.rs`). It accepts a deliberately bounded,
+dimensionally typed subset of UCUM-style symbols: current (`A`, `mA`, `kA`),
+power (`W`, `kW`, `MW`), voltage (`V`, `kV`), duration (`s`, `min`,
+`h`) and length (`mm`, `cm`, `m`, `[in_i]`, `[ft_i]`).
+All conversions use exact rational factors and checked integer arithmetic;
+there is no floating-point rounding or hidden unit reinterpretation.
+Unknown units are rejected at rule admission, and non-convertible fact
+dimensions or overflow evaluate to `Unknown`, never `Satisfied`.
+
+For example, 40 international inches equals 1,016 mm exactly.
+A reported width of 1,000 mm violates that requirement, while 1,016 mm
+satisfies it. Likewise 9,000 W equals 9 kW. Runtime checks must not
+silently evaluate amperes against millimeters or a missing fact.
+
+This bounded table intentionally does not claim full UCUM interoperability.
+Future units must be added only with reviewed rational conversion and
+dimensional conformance fixtures, or replaced by a proven UCUM library if
+the broader unit grammar becomes necessary. Do not grow a second unit
+registry in the source adapter.

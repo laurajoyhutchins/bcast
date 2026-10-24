@@ -51,7 +51,20 @@ mod generated_rule_tests {
             Fact { name: "egress.clear_width", value: Value::Quantity { mantissa: 1000, scale: 0, unit: "mm" } },
             Fact { name: "special_exception", value: Value::Bool(false) },
         ];
-        assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &wrong_units).unwrap()[0].decision, Decision::InsufficientFacts);
+        // 1,000 mm is less than 40 international inches (1,016 mm).
+        assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &wrong_units).unwrap()[0].decision, Decision::Violated);
+        let exact_mm = [
+            Fact { name: "occupancy", value: Value::Text("assembly") },
+            Fact { name: "egress.clear_width", value: Value::Quantity { mantissa: 1016, scale: 0, unit: "mm" } },
+            Fact { name: "special_exception", value: Value::Bool(false) },
+        ];
+        assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &exact_mm).unwrap()[0].decision, Decision::Satisfied);
+        let incompatible = [
+            Fact { name: "occupancy", value: Value::Text("assembly") },
+            Fact { name: "egress.clear_width", value: Value::Quantity { mantissa: 40, scale: 0, unit: "A" } },
+            Fact { name: "special_exception", value: Value::Bool(false) },
+        ];
+        assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &incompatible).unwrap()[0].decision, Decision::InsufficientFacts);
         assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &facts(40)).unwrap()[1].decision, Decision::Unsupported);
         assert_eq!(compare_fixed(3, 1, 30, 2), Some(Ordering::Equal));
         assert_eq!(compare_fixed(i128::MAX, 0, 1, 18), None);
