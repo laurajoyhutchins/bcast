@@ -324,7 +324,9 @@ pub fn compile_combined(input: &str) -> Result<String, CompileError> {
          pub const SBVR_ARTIFACT_SHA256: &str = {};\n\
          pub const SBVR_PASSAGE_COUNT: usize = {};\n\
          pub const SBVR_PROPOSAL_COUNT: usize = {};\n\
+         pub const SBVR_ADMITTED_COUNT: usize = {};\n\
          pub const SBVR_UNRESOLVED_COUNT: usize = {};\n\
+         pub const SBVR_REJECTED_COUNT: usize = {};\n\
          pub fn evaluate_sbvr(namespace: &str, family: &str, edition: &str, revision: &str, facts: &[Fact<'_>]) -> Option<Vec<Finding>> {{\n\
              match (namespace, family, edition, revision) {{\n{arm}\n        _ => None,\n    }}\n}}\n\
          pub fn evaluate_combined(namespace: &str, family: &str, edition: &str, revision: &str, facts: &[Fact<'_>]) -> Option<Vec<Finding>> {{\n\
