@@ -112,6 +112,21 @@ fn combined_compilation_is_deterministic_and_omits_protected_text() {
 }
 
 #[test]
+fn prototype_runs_realistic_hypotheses_without_fake_reviewers() {
+    let mut source = batch();
+    source["mode"] = json!("prototype");
+    source["proposals"][0].as_object_mut().unwrap().remove("review");
+    source["proposals"][1].as_object_mut().unwrap().remove("review");
+    let compiled = compile_combined(&source.to_string()).unwrap();
+    assert!(compiled.contains("prototype: true"));
+    assert!(compiled.contains("pub fn evaluate_evidence"));
+    assert!(compiled.contains("rule_id: \"new-threshold\""));
+    // Backward-compatible reviewed admission still requires a real record.
+    source.as_object_mut().unwrap().remove("mode");
+    assert!(compile_combined(&source.to_string()).is_err());
+}
+
+#[test]
 fn source_anchors_types_dependencies_and_accounting_fail_closed() {
     let cases: Vec<(&str,Box<dyn Fn(&mut Value)>)> = vec![
         ("text drift",Box::new(|d| d["passages"][0]["text"] = json!("changed"))),
@@ -149,6 +164,53 @@ fn source_anchors_types_dependencies_and_accounting_fail_closed() {
         mutate(&mut doc);
         assert!(compile_combined(&doc.to_string()).is_err(), "{label} was admitted");
     }
+}
+
+#[test]
+fn prototype_generated_rust_executes_without_a_reviewer() {
+    let mut source = batch();
+    source["mode"] = json!("prototype");
+    for proposal in source["proposals"].as_array_mut().unwrap() {
+        proposal.as_object_mut().unwrap().remove("review");
+    }
+    let generated = compile_combined(&source.to_string()).unwrap();
+    let dir = std::env::temp_dir().join(format!("bcast-prototype-proof-{}",std::process::id()));
+    fs::create_dir_all(&dir).unwrap();
+    let source_file=dir.join("prototype.rs");
+    let binary=dir.join("prototype-test");
+    let tests=r#"
+#[cfg(test)]
+mod proof {
+    use super::*;
+    #[test]
+    fn experimental_predicate_is_live_without_compliance_claim() {
+        let facts=[
+            Fact{name:"baseline.enabled",value:Value::Bool(true)},
+            Fact{name:"household",value:Value::Bool(true)},
+            Fact{name:"exemption",value:Value::Bool(false)},
+            Fact{name:"branch.rating",value:Value::Quantity{mantissa:39,scale:0,unit:"A"}},
+            Fact{name:"alternate.allowed",value:Value::Bool(true)},
+        ];
+        let report=evaluate_evidence("study.example","fictional-electrical","2017","",&facts).unwrap();
+        assert!(report.prototype);
+        assert_eq!(report.status,EvidenceStatus::IncompleteCoverage);
+        assert_eq!(report.predicate_violations,1);
+        assert_eq!(report.admitted_proposals,2);
+        assert_eq!(report.unresolved_proposals,1);
+        assert!(report.findings.iter().any(|f|
+            f.rule_id=="new-threshold" && f.decision==Decision::Violated
+            && f.review_ref==""
+        ));
+    }
+}
+"#;
+    fs::write(&source_file,format!("{generated}\n{tests}")).unwrap();
+    let compiled=Command::new("rustc").args(["--edition=2021","--test"])
+        .arg(&source_file).arg("-o").arg(&binary).output().unwrap();
+    assert!(compiled.status.success(),"{}",String::from_utf8_lossy(&compiled.stderr));
+    let result=Command::new(&binary).output().unwrap();
+    assert!(result.status.success(),"{}",String::from_utf8_lossy(&result.stderr));
+    fs::remove_dir_all(dir).unwrap();
 }
 
 #[test]

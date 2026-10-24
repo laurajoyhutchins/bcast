@@ -187,3 +187,19 @@ Future units must be added only with reviewed rational conversion and
 dimensional conformance fixtures, or replaced by a proven UCUM library if
 the broader unit grammar becomes necessary. Do not grow a second unit
 registry in the source adapter.
+
+## Running experiments without fictional reviewers
+
+For an actual source-backed proof of concept, set
+`"mode": "prototype"` on the `bcast.sbvr_proposal_batch/0.1.0`
+document. An admitted proposal in prototype mode needs a predicate,
+source identity, complete batch accounting and resolved machine dependencies,
+but **does not require a pretend human review record**. The compiler will
+not fabricate one: `Finding.review_ref` is empty and
+`EvidenceReport.prototype` is `true`.
+
+The existing default `reviewed` mode keeps its prior review-record
+requirement. Both modes share exactly the same interpreter, generated
+Rust runtime, source package verification, unit checking, and incomplete
+coverage reporting. `prototype` means a runnable proposed interpretation,
+not a certification. No second executable rule engine is introduced.

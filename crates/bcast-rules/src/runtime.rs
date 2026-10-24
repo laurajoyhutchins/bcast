@@ -211,6 +211,8 @@ pub struct OpenQuestion {
 #[derive(Debug)]
 pub struct EvidenceReport {
     pub status: EvidenceStatus,
+    /// Experimental source interpretation; no third-party approval is asserted.
+    pub prototype: bool,
     pub publication_id: &'static str,
     pub package_id: &'static str,
     pub source_artifact_sha256: &'static str,

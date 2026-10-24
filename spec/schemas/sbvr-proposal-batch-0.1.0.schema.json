@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:bcast:schema:sbvr-proposal-batch:0.1.0",
   "title": "BCAST source-pinned SBVR-inspired proposal batch",
-  "description": "Proposed regulatory propositions derived from bounded source passages, not an OMG SBVR XMI interchange model or an authoritative interpretation. Exact source text must stay rights-scoped. Every batch must carry a source-package BCAST 0.2 materialization; Rust rehashes and verifies member identities.",
+  "description": "Proposed regulatory propositions derived from bounded source passages, not an OMG SBVR XMI interchange model or an authoritative interpretation. Exact source text must stay rights-scoped. Every batch must carry a source-package BCAST 0.2 materialization; Rust rehashes and verifies member identities. Prototype-mode source-linked hypotheses are executable without fictional reviewers; runtime reports prototype=true. Rust requires a review record in reviewed mode.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -298,6 +298,14 @@
         }
       },
       "additionalProperties": false
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "reviewed",
+        "prototype"
+      ],
+      "description": "Prototype explicitly permits executable unreviewed hypotheses; reviewed mode is the backward-compatible default."
     }
   },
   "$defs": {
@@ -461,8 +469,7 @@
           },
           "then": {
             "required": [
-              "predicate",
-              "review"
+              "predicate"
             ],
             "not": {
               "required": [

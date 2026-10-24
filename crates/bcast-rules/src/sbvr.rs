@@ -14,12 +14,22 @@ pub const PROPOSAL_CONTRACT: &str = "bcast.sbvr_proposal_batch/0.1.0";
 #[serde(deny_unknown_fields)]
 struct ProposalBatch {
     schema_version: String,
+    #[serde(default)]
+    mode: AdmissionMode,
     baseline: Value,
     source_package: Value,
     source: BatchSource,
     passages: Vec<Passage>,
     proposals: Vec<Proposal>,
     accounting: Accounting,
+}
+
+#[derive(Clone, Copy, Default, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+enum AdmissionMode {
+    #[default]
+    Reviewed,
+    Prototype,
 }
 
 #[derive(Deserialize)]
@@ -192,9 +202,13 @@ fn count_proposals(doc: &ProposalBatch) -> Result<BTreeMap<String, Vec<&Proposal
                 proposal.dependencies.iter().any(|d| !d.resolved) {
                 return Err(fail("admitted proposal requires predicate and resolved dependencies"));
             }
-            let review = proposal.review.as_ref().ok_or_else(|| fail("admitted proposal missing review"))?;
-            checked_text(&review.reviewer, "review.reviewer")?;
-            checked_text(&review.review_ref, "review.review_ref")?;
+            if doc.mode == AdmissionMode::Reviewed && proposal.review.is_none() {
+                return Err(fail("reviewed admission requires a named review record"));
+            }
+            if let Some(review) = &proposal.review {
+                checked_text(&review.reviewer, "review.reviewer")?;
+                checked_text(&review.review_ref, "review.review_ref")?;
+            }
         } else {
             if proposal.predicate.is_some() || proposal.review.is_some() {
                 return Err(fail("unadmitted proposal cannot carry an executable predicate/review"));
@@ -215,11 +229,11 @@ fn proposal_expr(p: &Proposal, source: &Passage) -> Result<String, CompileError>
         Modality::Prohibition => "decide_prohibition",
         Modality::Permission => "decide_permission",
     };
-    let review = p.review.as_ref().ok_or_else(|| fail("missing review"))?;
+    let review_ref = p.review.as_ref().map_or("", |r| r.review_ref.as_str());
     Ok(format!(
         "            Finding {{ rule_id: {}, source_object_id: {}, source_locator: {}, source_text_sha256: {}, review_ref: {}, reason: \"\", decision: {decision}({condition}, {exception}, {predicate}) }}",
         literal(&p.proposal_id), literal(&source.source_object_id), literal(&source.locator),
-        literal(&source.text_sha256), literal(&review.review_ref)
+        literal(&source.text_sha256), literal(review_ref)
     ))
 }
 
@@ -359,7 +373,7 @@ pub fn evaluate_evidence(
     let (status, predicate_violations, predicates_with_missing_facts) =
         assess_evidence(&findings, {}, {}, {});
     Some(EvidenceReport {{
-        status, publication_id: {}, package_id: {}, source_artifact_sha256: {},
+        status, prototype: {}, publication_id: {}, package_id: {}, source_artifact_sha256: {},
         selected_passages: {}, source_package_objects: {}, admitted_proposals: {},
         unresolved_proposals: {}, rejected_proposals: {},
         findings, open_questions: OPEN_QUESTIONS,
@@ -370,6 +384,7 @@ pub fn evaluate_evidence(
         open_questions.join("\n"),
         literal(&source.namespace), literal(&source.family), literal(&source.edition),
         literal(revision), actual_unresolved, actual_rejected, unselected_count,
+        doc.mode == AdmissionMode::Prototype,
         literal(&source.publication_id), literal(&source.package_id),
         literal(&source.artifact_sha256), doc.passages.len(), package_count,
         actual_admitted, actual_unresolved, actual_rejected
