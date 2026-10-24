@@ -48,10 +48,10 @@ mod generated_rule_tests {
     fn units_fixed_point_and_unsupported_are_explicit() {
         let wrong_units = [
             Fact { name: "occupancy", value: Value::Text("assembly") },
-            Fact { name: "egress.clear_width", value: Value::Quantity { mantissa: 1000, scale: 0, unit: "mm" } },
+            Fact { name: "egress.clear_width", value: Value::Quantity { mantissa: 900, scale: 0, unit: "mm" } },
             Fact { name: "special_exception", value: Value::Bool(false) },
         ];
-        // 1,000 mm is less than 40 international inches (1,016 mm).
+        // 900 mm is less than the 2024 illustrative threshold of 36 inches (914.4 mm).
         assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &wrong_units).unwrap()[0].decision, Decision::Violated);
         let exact_mm = [
             Fact { name: "occupancy", value: Value::Text("assembly") },
@@ -67,6 +67,7 @@ mod generated_rule_tests {
         assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &incompatible).unwrap()[0].decision, Decision::InsufficientFacts);
         assert_eq!(evaluate(NAMESPACE, FAMILY, "2024", "", &facts(40)).unwrap()[1].decision, Decision::Unsupported);
         assert_eq!(compare_fixed(3, 1, 30, 2), Some(Ordering::Equal));
+        assert_eq!(compare_quantity(1016, 0, "mm", 40, 0, "[in_i]"), Some(Ordering::Equal));
         assert_eq!(compare_fixed(i128::MAX, 0, 1, 18), None);
     }
 

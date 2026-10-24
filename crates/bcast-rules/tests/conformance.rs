@@ -100,6 +100,7 @@ fn generated_rust_executes_original_behavioral_conformance() {
         .unwrap();
     assert!(compiled.status.success(), "{}", String::from_utf8_lossy(&compiled.stderr));
     let executed = Command::new(&binary).output().unwrap();
-    assert!(executed.status.success(), "{}", String::from_utf8_lossy(&executed.stderr));
+    assert!(executed.status.success(), "stdout: {} stderr: {}",
+        String::from_utf8_lossy(&executed.stdout), String::from_utf8_lossy(&executed.stderr));
     fs::remove_dir_all(dir).unwrap();
 }
