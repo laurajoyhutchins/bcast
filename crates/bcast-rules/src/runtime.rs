@@ -168,3 +168,62 @@ pub fn decide_permission(applicable: Truth, excepted: Truth, allowed: Truth) -> 
         },
     }
 }
+
+
+// Summary of a *selected* source scope. No variant means "code compliant".
+// A single satisfied predicate never establishes provision or edition coverage.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EvidenceStatus {
+    IncompleteCoverage,
+    PredicateViolationObserved,
+    PredicateEvidenceOnly,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct OpenQuestion {
+    pub proposal_id: &'static str,
+    pub source_object_id: &'static str,
+    pub source_locator: &'static str,
+    pub reason: &'static str,
+    pub dependencies: &'static [&'static str],
+}
+
+#[derive(Debug)]
+pub struct EvidenceReport {
+    pub status: EvidenceStatus,
+    pub publication_id: &'static str,
+    pub package_id: &'static str,
+    pub source_artifact_sha256: &'static str,
+    pub selected_passages: usize,
+    pub source_package_objects: usize,
+    pub admitted_proposals: usize,
+    pub unresolved_proposals: usize,
+    pub rejected_proposals: usize,
+    pub findings: Vec<Finding>,
+    pub open_questions: &'static [OpenQuestion],
+    pub predicate_violations: usize,
+    pub predicates_with_missing_facts: usize,
+}
+
+pub fn assess_evidence(
+    findings: &[Finding],
+    unresolved_proposals: usize,
+    rejected_proposals: usize,
+    package_objects_not_selected: usize,
+) -> (EvidenceStatus, usize, usize) {
+    let violated = findings.iter().filter(|f| f.decision == Decision::Violated).count();
+    let unknown = findings.iter().filter(|f|
+        matches!(f.decision, Decision::InsufficientFacts |
+                 Decision::Unsupported | Decision::PermissionNotEstablished)
+    ).count();
+    let missing_scope = unresolved_proposals > 0 || rejected_proposals > 0 ||
+        package_objects_not_selected > 0 || unknown > 0;
+    let status = if missing_scope {
+        EvidenceStatus::IncompleteCoverage
+    } else if violated > 0 {
+        EvidenceStatus::PredicateViolationObserved
+    } else {
+        EvidenceStatus::PredicateEvidenceOnly
+    };
+    (status, violated, unknown)
+}

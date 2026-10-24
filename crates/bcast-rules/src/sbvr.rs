@@ -314,6 +314,29 @@ pub fn compile_combined(input: &str) -> Result<String, CompileError> {
         expressions.push(proposal_expr(proposal, passage)?);
     }
 
+    let open_questions = doc.proposals.iter()
+        .filter(|p| p.disposition != Disposition::Admitted)
+        .map(|proposal| {
+            let passage = passage_map.get(&proposal.passage_id)
+                .ok_or_else(|| fail("question without source passage"))?;
+            let dependencies = proposal.dependencies.iter()
+                .filter(|dep| !dep.resolved)
+                .map(|dep| literal(&dep.locator))
+                .collect::<Vec<_>>().join(", ");
+            Ok(format!(
+                "    OpenQuestion {{ proposal_id: {}, source_object_id: {}, source_locator: {}, reason: {}, dependencies: &[{}] }},",
+                literal(&proposal.proposal_id), literal(&passage.source_object_id),
+                literal(&passage.locator),
+                literal(proposal.reason.as_deref().ok_or_else(|| fail("unadmitted proposal missing reason"))?),
+                dependencies
+            ))
+        }).collect::<Result<Vec<_>, CompileError>>()?;
+    let package_count = doc.source_package["objects"].as_array()
+        .ok_or_else(|| fail("missing verified package objects"))?.len();
+    let selected_members = doc.passages.iter().map(|p| p.source_object_id.as_str())
+        .collect::<BTreeSet<_>>().len();
+    let unselected_count = package_count.saturating_sub(selected_members);
+
     let source = &doc.source;
     let revision = source.revision.as_deref().unwrap_or("");
     let arm = format!(
@@ -322,6 +345,35 @@ pub fn compile_combined(input: &str) -> Result<String, CompileError> {
         literal(revision), expressions.join(",\n")
     );
 
+    let evidence_api = format!(
+        r#"pub static OPEN_QUESTIONS: &[OpenQuestion] = &[
+{}
+];
+pub fn evaluate_evidence(
+    namespace: &str, family: &str, edition: &str, revision: &str, facts: &[Fact<'_>],
+) -> Option<EvidenceReport> {{
+    if (namespace, family, edition, revision) != ({}, {}, {}, {}) {{
+        return None;
+    }}
+    let findings = evaluate_combined(namespace, family, edition, revision, facts)?;
+    let (status, predicate_violations, predicates_with_missing_facts) =
+        assess_evidence(&findings, {}, {}, {});
+    Some(EvidenceReport {{
+        status, publication_id: {}, package_id: {}, source_artifact_sha256: {},
+        selected_passages: {}, source_package_objects: {}, admitted_proposals: {},
+        unresolved_proposals: {}, rejected_proposals: {},
+        findings, open_questions: OPEN_QUESTIONS,
+        predicate_violations, predicates_with_missing_facts,
+    }})
+}}
+"#,
+        open_questions.join("\n"),
+        literal(&source.namespace), literal(&source.family), literal(&source.edition),
+        literal(revision), actual_unresolved, actual_rejected, unselected_count,
+        literal(&source.publication_id), literal(&source.package_id),
+        literal(&source.artifact_sha256), doc.passages.len(), package_count,
+        actual_admitted, actual_unresolved, actual_rejected
+    );
     Ok(format!(
         "{generated}\n\
          // Source-pinned OMG SBVR-inspired proposals: admitted predicates only.\n\
@@ -343,7 +395,7 @@ pub fn compile_combined(input: &str) -> Result<String, CompileError> {
                  (Some(a), None) => Some(a),\n\
                  (None, Some(b)) => Some(b),\n\
              }}\n\
-         }}\n",
+         }}\n{evidence_api}",
         literal(&source.artifact_sha256),
         doc.passages.len(), doc.proposals.len(), actual_admitted, actual_unresolved, actual_rejected
     ))

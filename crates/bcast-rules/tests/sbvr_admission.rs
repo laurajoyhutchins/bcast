@@ -101,6 +101,7 @@ fn combined_compilation_is_deterministic_and_omits_protected_text() {
     assert_eq!(output, compile_combined(&first.to_string()).unwrap());
     assert!(output.contains("pub fn evaluate_combined"));
     assert!(output.contains("pub fn evaluate_sbvr"));
+    assert!(output.contains("pub fn evaluate_evidence"));
     assert!(output.contains("pub fn decide_permission"));
     assert!(output.contains("SBVR_PASSAGE_COUNT: usize = 2"));
     assert!(output.contains("SBVR_ADMITTED_COUNT: usize = 2"));
@@ -168,6 +169,27 @@ mod combined_tests {
             Fact{name:"branch.rating",value:Value::Quantity{mantissa:rating,scale:0,unit:"A"}},
             Fact{name:"alternate.allowed",value:Value::Bool(allowed)}
         ]
+    }
+    #[test]
+    fn source_coverage_is_never_inferred_from_one_passing_predicate() {
+        let passing = evaluate_evidence(
+            "study.example", "fictional-electrical", "2017", "", &f(true, 40, true)
+        ).unwrap();
+        assert_eq!(passing.status, EvidenceStatus::IncompleteCoverage);
+        assert_eq!(passing.selected_passages, 2);
+        assert_eq!(passing.source_package_objects, 2);
+        assert_eq!(passing.unresolved_proposals, 1);
+        assert_eq!(passing.open_questions.len(), 1);
+        assert_eq!(passing.open_questions[0].proposal_id, "needs-definition");
+        assert_eq!(passing.predicate_violations, 0);
+        let failed = evaluate_evidence(
+            "study.example", "fictional-electrical", "2017", "", &f(true, 39, true)
+        ).unwrap();
+        assert_eq!(failed.status, EvidenceStatus::IncompleteCoverage);
+        assert_eq!(failed.predicate_violations, 1);
+        assert!(evaluate_evidence(
+            "study.example", "fictional-electrical", "2020", "", &f(true, 40, true)
+        ).is_none());
     }
     #[test]
     fn existing_and_new_rules_coexist() {

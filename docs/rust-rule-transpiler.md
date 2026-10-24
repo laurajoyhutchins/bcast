@@ -140,3 +140,27 @@ contain provenance-only `unresolved` records without copyrighted source
 text. Such records cannot claim that code text or legal meaning is resolved.
 The private source adapter checks exact owner-supplied PDF bytes and
 regenerates the source package with public BCAST's canonical package builder.
+
+## Source-scoped evidence assessment (no compliance status)
+
+Use the generated `evaluate_evidence(namespace, family, edition, revision, facts)`
+for project review. It returns an `EvidenceReport` with source publication
+and package identities, the exact PDF digest, selected passages, admitted and
+unresolved proposal counts, source-linked predicate findings, and an
+`open_questions` array carrying unanswered semantic dependencies.
+`predicate_violations` and `predicates_with_missing_facts` are reported
+even when interpretation coverage is incomplete.
+
+`EvidenceStatus` has only `IncompleteCoverage`,
+`PredicateViolationObserved`, and `PredicateEvidenceOnly`.
+There is **no** `Compliant` value and no implicit provision-completeness
+claim. If any proposal remains unresolved/rejected, a selected package object
+was not covered by a passage, or a predicate has missing facts, status is
+`IncompleteCoverage` even if one or more predicates evaluate
+`Satisfied`. A violation count remains visible in the same report.
+
+The legacy `evaluate` and `evaluate_combined` return raw predicate details
+for computational consumers. They are not compliance APIs. Consumers should
+not collapse `Vec<Finding>` into a single pass/fail state. Normative,
+edition-wide completeness and authenticated reviewer approval are separate
+upstream gates and are not inferred from the absence of open questions.
