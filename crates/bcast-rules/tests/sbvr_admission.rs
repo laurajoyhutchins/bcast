@@ -12,7 +12,6 @@ fn addr(prefix: &str, payload: Value) -> String {
 fn batch() -> Value {
     let publication = json!({"namespace":"study.example","family":"fictional-electrical","edition":"2017"});
     let publication_id = addr("bcastpub", publication.clone());
-    let pkg = format!("bcastpkg:sha256:{}", "e".repeat(64));
     let source_id = addr("bcastobj", json!({
         "publication_id":publication_id,"kind":"section","locator":"210.19(A)(3)"
     }));
@@ -35,6 +34,21 @@ fn batch() -> Value {
             "pdf_page":page,"bbox_millipoints":bbox,"text":text,"text_sha256":digest
         }));
     }
+    let mut package_objects: Vec<Value> = passages.iter().map(|p| json!({
+        "object_id":p["source_object_id"],"kind":p["kind"],"locator":p["locator"],
+        "status":"unresolved","provenance":{
+            "citation":"synthetic test source", "source_artifact_sha256":artifact
+        }
+    })).collect();
+    package_objects.sort_by(|a,b|a["object_id"].as_str().cmp(&b["object_id"].as_str()));
+    let mut source_package=json!({
+        "schema_version":"bcast.package/0.2.0","package_version":"source-witness/1",
+        "publication":{"namespace":"study.example","family":"fictional-electrical",
+            "edition":"2017","publication_id":publication_id},
+        "objects":package_objects
+    });
+    let pkg=addr("bcastpkg",source_package.clone());
+    source_package["package_id"]=json!(pkg);
     let first_id = passages[0]["passage_id"].clone();
     let second_id = passages[1]["passage_id"].clone();
     let baseline = json!({
@@ -56,6 +70,7 @@ fn batch() -> Value {
     json!({
         "schema_version":"bcast.sbvr_proposal_batch/0.1.0",
         "baseline":baseline,
+        "source_package":source_package,
         "source":{
             "namespace":"study.example","family":"fictional-electrical","edition":"2017",
             "publication_id":publication_id,"package_id":pkg,"artifact_sha256":artifact,
@@ -117,6 +132,15 @@ fn source_anchors_types_dependencies_and_accounting_fail_closed() {
             d["proposals"][0]["dependencies"].as_array_mut().unwrap().push(item);
         })),
         ("unreviewed executable",Box::new(|d| d["proposals"][2]["predicate"] = json!({"fact":"x","op":"eq","value":{"bool":true}}))),
+        ("source package hash mismatch",Box::new(|d| d["source_package"]["package_id"] = json!(format!("bcastpkg:sha256:{}", "0".repeat(64))))),
+        ("missing member",Box::new(|d|{d["source_package"]["objects"].as_array_mut().unwrap().pop();})),
+        ("member provenance wrong source",Box::new(|d|d["source_package"]["objects"][0]["provenance"]["source_artifact_sha256"]=json!("b".repeat(64)))),
+        ("wrong member coordinate",Box::new(|d|d["source_package"]["objects"][0]["locator"]=json!("5.8.2"))),
+        ("duplicated source package object",Box::new(|d|{
+            let first=d["source_package"]["objects"][0].clone();
+            d["source_package"]["objects"].as_array_mut().unwrap().push(first);
+        })),
+        ("baseline does not match canonical package",Box::new(|d|d["baseline"]["editions"][0]["package_id"]=json!("a".repeat(64)))),
         ("unmatched edition",Box::new(|d| d["source"]["edition"] = json!("2020")))
     ];
     for (label,mutate) in cases {

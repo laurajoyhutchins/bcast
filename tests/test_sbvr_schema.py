@@ -37,6 +37,27 @@ class SbvrBatchSchemaTests(unittest.TestCase):
                 "artifact_sha256": sha,
                 "media_type": "application/pdf",
             },
+            "source_package": {
+                "schema_version": "bcast.package/0.2.0",
+                "package_version": "source-witness/1",
+                "publication": {
+                    "publication_id": "bcastpub:sha256:" + sha,
+                    "namespace": "study.example",
+                    "family": "fictional-code",
+                    "edition": "2017",
+                },
+                "objects": [{
+                    "object_id": "bcastobj:sha256:" + sha,
+                    "kind": "section",
+                    "locator": "210.19(A)(3)",
+                    "status": "unresolved",
+                    "provenance": {
+                        "citation": "Synthetic test",
+                        "source_artifact_sha256": sha,
+                    },
+                }],
+                "package_id": "bcastpkg:sha256:" + sha,
+            },
             "passages": [
                 {
                     "passage_id": "bcastpassage:sha256:" + sha,
@@ -88,6 +109,12 @@ class SbvrBatchSchemaTests(unittest.TestCase):
         invalids.append(x)
         x = self.minimal()
         x["source"]["publication_id"] = "not-a-hash"
+        invalids.append(x)
+        x = self.minimal()
+        x["source_package"]["objects"][0]["kind"] = "made-up"
+        invalids.append(x)
+        x = self.minimal()
+        del x["source_package"]
         invalids.append(x)
         for value in invalids:
             with self.subTest(value=value):

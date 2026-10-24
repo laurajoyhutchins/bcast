@@ -120,3 +120,23 @@ reviewers may approve source-derived interpretations.
 Never commit protected extracted text, PDF bytes, or raw proposal batches
 containing code passages to public Git. Private source operations must verify
 the PDF digest, bounding boxes and correspondence and retain private evidence.
+
+## Pinned package membership (required)
+
+An SBVR proposal batch now **must** contain `source_package`, an exact
+`bcast.package/0.2.0` materialization for the selected edition, as well as
+`baseline`, `source`, `passages`, `proposals` and `accounting`.
+The Rust compiler independently recomputes the package SHA-256 using
+canonical JSON with sorted object IDs and no `package_id` key. It validates
+source publication identity, each object's canonical coordinate ID,
+provenance PDF digest, unique object IDs, parent references and member
+coordinates. Every extracted passage must be present in that exact pinned
+materialization. The package ID must also match the selected baseline's
+package ID. Identity or membership mismatch blocks generation.
+
+This is a **cryptographically bound metadata membership witness**, not
+independent extraction fidelity or semantic review. The source package may
+contain provenance-only `unresolved` records without copyrighted source
+text. Such records cannot claim that code text or legal meaning is resolved.
+The private source adapter checks exact owner-supplied PDF bytes and
+regenerates the source package with public BCAST's canonical package builder.

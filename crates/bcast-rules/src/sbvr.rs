@@ -1,5 +1,7 @@
 //! Proposal admission and source-pinned composition, not legal interpretation.
 //! SBVR-inspired modalities are explicitly NOT an OMG SBVR-XMI interchange claim.
+#[path = "package.rs"]
+mod package;
 use super::*;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -13,6 +15,7 @@ pub const PROPOSAL_CONTRACT: &str = "bcast.sbvr_proposal_batch/0.1.0";
 struct ProposalBatch {
     schema_version: String,
     baseline: Value,
+    source_package: Value,
     source: BatchSource,
     passages: Vec<Passage>,
     proposals: Vec<Proposal>,
@@ -243,6 +246,8 @@ pub fn compile_combined(input: &str) -> Result<String, CompileError> {
             return Err(fail("duplicate source page/object/rectangle"));
         }
     }
+
+    package::verify_source_package(&doc.source_package, &doc.source, &doc.passages)?;
 
     let classes = count_proposals(&doc)?;
     if classes.len() != passage_map.len() ||
