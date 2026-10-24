@@ -1,37 +1,30 @@
-name: Temporary GLiNER2.5 Transformers 5.8 runtime bridge
+name: Temporary pinned GLiNER2 source bridge
 on:
   push:
-    branches:
-      - agent/gliner25-checkpoint-bridge-20261024
-    paths:
-      - .github/workflows/gliner25-checkpoint-bridge.yml
+    branches: [agent/gliner25-checkpoint-bridge-20261024]
+    paths: [.github/workflows/gliner25-checkpoint-bridge.yml]
 permissions:
   contents: read
 jobs:
-  public-wheel-download:
+  fetch-source:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Download checkpoint-declared Transformers runtime
+      - name: Fetch and verify public upstream source
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p wheelhouse
-          python -m pip download --disable-pip-version-check --only-binary=:all: -d wheelhouse 'transformers==5.8.0'
-          python - <<'PY'
-          from pathlib import Path
-          import hashlib,json
-          files=[{'file':p.name,'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(Path('wheelhouse').glob('*.whl'))]
-          assert any(f['file'].startswith('transformers-5.8.0-') for f in files)
-          Path('wheelhouse/manifest.json').write_text(json.dumps({'origin':'public PyPI packages for checkpoint Transformers 5.8.0','files':files},indent=2))
-          print(files)
-          PY
+          git clone --depth 1 https://github.com/fastino-ai/GLiNER2.git upstream
+          cd upstream
+          test "$(git rev-parse HEAD)" = ca4f68235b50fe4c3ecf3876851d748fe4b15c6c
+          test -f gliner2/auto.py
+          grep -q '"AutoExtractor"' gliner2/__init__.py
+          cd ..
+          tar czf gliner2-upstream-2.1.0-source.tar.gz -C upstream gliner2 pyproject.toml LICENSE
+          sha256sum gliner2-upstream-2.1.0-source.tar.gz
       - uses: actions/upload-artifact@v4
         with:
-          name: gliner25-transformers58-runtime-wheels
-          path: wheelhouse/
+          name: gliner25-pinned-upstream-source
+          path: gliner2-upstream-2.1.0-source.tar.gz
           retention-days: 1
           if-no-files-found: error
