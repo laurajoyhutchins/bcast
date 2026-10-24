@@ -46,16 +46,18 @@ class SbvrBatchSchemaTests(unittest.TestCase):
                     "family": "fictional-code",
                     "edition": "2017",
                 },
-                "objects": [{
-                    "object_id": "bcastobj:sha256:" + sha,
-                    "kind": "section",
-                    "locator": "210.19(A)(3)",
-                    "status": "unresolved",
-                    "provenance": {
-                        "citation": "Synthetic test",
-                        "source_artifact_sha256": sha,
-                    },
-                }],
+                "objects": [
+                    {
+                        "object_id": "bcastobj:sha256:" + sha,
+                        "kind": "section",
+                        "locator": "210.19(A)(3)",
+                        "status": "unresolved",
+                        "provenance": {
+                            "citation": "Synthetic test",
+                            "source_artifact_sha256": sha,
+                        },
+                    }
+                ],
                 "package_id": "bcastpkg:sha256:" + sha,
             },
             "passages": [
