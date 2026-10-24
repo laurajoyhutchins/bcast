@@ -13,9 +13,7 @@ from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads(
-    (ROOT / "spec/schemas/sbvr-proposal-batch-0.1.0.schema.json").read_text(
-        encoding="utf-8"
-    )
+    (ROOT / "spec/schemas/sbvr-proposal-batch-0.1.0.schema.json").read_text(encoding="utf-8")
 )
 
 
@@ -92,10 +90,8 @@ class SbvrBatchSchemaTests(unittest.TestCase):
         x["source"]["publication_id"] = "not-a-hash"
         invalids.append(x)
         for value in invalids:
-            with self.subTest(value=value), self.assertTrue(
-                list(self.validator.iter_errors(value))
-            ):
-                pass
+            with self.subTest(value=value):
+                self.assertTrue(list(self.validator.iter_errors(value)))
 
 
 if __name__ == "__main__":
