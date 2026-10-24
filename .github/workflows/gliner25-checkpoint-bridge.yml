@@ -1,4 +1,4 @@
-name: Temporary GLiNER2.5 dependency bridge
+name: Temporary GLiNER2.5 Transformers 5.8 runtime bridge
 on:
   push:
     branches:
@@ -15,24 +15,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - name: Fetch exact compatible dependency wheels only
+      - name: Download checkpoint-declared Transformers runtime
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p wheelhouse
-          python -m pip download --disable-pip-version-check --only-binary=:all: --no-deps -d wheelhouse \
-            'huggingface_hub==0.36.0' 'tokenizers==0.22.1' 'peft==0.17.1'
+          python -m pip download --disable-pip-version-check --only-binary=:all: -d wheelhouse 'transformers==5.8.0'
           python - <<'PY'
           from pathlib import Path
-          import hashlib, json
+          import hashlib,json
           files=[{'file':p.name,'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(Path('wheelhouse').glob('*.whl'))]
-          assert len(files)==3,files
-          Path('wheelhouse/manifest.json').write_text(json.dumps({'origin':'public PyPI dependencies','files':files},indent=2))
+          assert any(f['file'].startswith('transformers-5.8.0-') for f in files)
+          Path('wheelhouse/manifest.json').write_text(json.dumps({'origin':'public PyPI packages for checkpoint Transformers 5.8.0','files':files},indent=2))
           print(files)
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: gliner25-compatible-python-wheels
+          name: gliner25-transformers58-runtime-wheels
           path: wheelhouse/
           retention-days: 1
           if-no-files-found: error
